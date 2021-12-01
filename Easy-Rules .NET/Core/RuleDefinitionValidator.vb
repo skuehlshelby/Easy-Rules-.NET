@@ -1,5 +1,6 @@
 ﻿Imports System.Reflection
-Imports RulesEngine.API
+Imports Easy_Rules_.NET.API
+Imports Easy_Rules_.NET.Attributes
 
 Namespace Core
     Public Class RuleDefinitionValidator
@@ -7,16 +8,17 @@ Namespace Core
             CheckRuleClass(rule)
             CheckConditionMethod(rule)
             CheckActionMethods(rule)
+            CheckPriorityMethod(rule)
         End Sub
 
-        Private Sub CheckRuleClass(rule As Object)
+        Private Shared Sub CheckRuleClass(rule As Object)
             If Not IsRuleClassWellDefined(rule) Then
                 Throw New ArgumentException($"Rule '{rule.GetType().Name}' is not annotated with '{NameOf(Attributes.Rule)}'.")
             End If
         End Sub
 
-        Private Sub CheckConditionMethod(rule As Object)
-            Dim conditionMethods As List(Of MethodInfo) = GetMethodsAnnotatedWith(Of Attributes.Condition)(rule)
+        Private Shared Sub CheckConditionMethod(rule As Object)
+            Dim conditionMethods As List(Of MethodInfo) = GetMethodsAnnotatedWith(Of Condition)(rule)
 
             If Not conditionMethods.Any() Then
                 Throw New ArgumentException($"Rule '{rule.GetType().Name}' must have a public method annotated with '{NameOf(Attributes.Condition)}'.")
@@ -33,11 +35,11 @@ Namespace Core
             End If
         End Sub
 
-        Private Sub CheckActionMethods(rule As Object)
-            Dim actionMethods As List(Of MethodInfo) = GetMethodsAnnotatedWith(Of Attributes.Action)(rule)
+        Private Shared Sub CheckActionMethods(rule As Object)
+            Dim actionMethods As List(Of MethodInfo) = GetMethodsAnnotatedWith(Of Action)(rule)
 
             If Not actionMethods.Any() Then
-                Throw New ArgumentException($"Rule '{rule.GetType().Name}' must have at least one public method annotated with '{NameOf(Attributes.Action)}'.")
+                Throw New ArgumentException($"Rule '{rule.GetType().Name}' must have at least one public method annotated with '{NameOf(Action)}'.")
             End If
 
             For Each actionMethod As MethodInfo In actionMethods
@@ -47,15 +49,43 @@ Namespace Core
             Next actionMethod
         End Sub
 
-        Private Function IsRuleClassWellDefined(rule As Object) As Boolean
+        Private Shared Sub CheckPriorityMethod(rule As Object)
+            Dim priorityMethods As List(Of MethodInfo) = GetMethodsAnnotatedWith(Of Priority)(rule)
+
+            If priorityMethods.Count = 0 Then
+                Return
+            End If
+
+            If priorityMethods.Count > 1 Then
+                Throw New ArgumentException($"Rule '{rule.GetType().Name}' must have no more than one public method annotated with '{NameOf(Priority)}'.")
+            End If
+
+            Dim priorityMethod As MethodInfo = priorityMethods.Single()
+
+            If Not IsPriorityMethodWellDefined(priorityMethod) Then
+                Throw New ArgumentException($"Priority method '{priorityMethod.Name}' defined in rule '{rule.GetType().Name}' must be public, must return an integer, and must have no input parameters.")
+            End If
+        End Sub
+
+        Private Shared Function IsRuleClassWellDefined(rule As Object) As Boolean
             Return rule.GetType.IsDefined(GetType(Attributes.Rule), False)
         End Function
 
-        Private Function IsConditionMethodWellDefined(method As MethodInfo) As Boolean
-            Return method.IsPublic AndAlso method.ReturnType.Equals(GetType(Boolean)) AndAlso HasValidParameters(method)
+        Private Shared Function IsConditionMethodWellDefined(method As MethodInfo) As Boolean
+            Return _
+                method.IsPublic AndAlso 
+                method.ReturnType Is GetType(Boolean) AndAlso 
+                HasValidParameters(method)
         End Function
 
-        Private Function HasValidParameters(method As MethodInfo) As Boolean
+        Private Shared Function IsActionMethodWellDefined(method As MethodInfo) As Boolean
+            Return _ 
+                method.IsPublic AndAlso 
+                method.ReturnType Is GetType(Void) AndAlso 
+                HasValidParameters(method)
+        End Function
+
+        Private Shared Function HasValidParameters(method As MethodBase) As Boolean
             Dim parameters As ParameterInfo() = method.GetParameters()
 
             If parameters.Length = 0 Then
@@ -69,15 +99,14 @@ Namespace Core
             End If
         End Function
 
-        Private Function IsActionMethodWellDefined(method As MethodInfo) As Boolean
-            Return method.IsPublic AndAlso method.ReturnType.Equals(GetType(Void)) AndAlso HasValidParameters(method)
+        Private Shared Function IsPriorityMethodWellDefined(method As MethodInfo) As Boolean
+            Return _
+                method.IsPublic AndAlso 
+                method.ReturnType Is GetType(Integer) AndAlso
+                Not method.GetParameters().Any()
         End Function
 
-        Private Function IsPriorityMethodWellDefined(method As MethodInfo) As Boolean
-            Return method.IsPublic AndAlso method.ReturnType.Equals(GetType(Integer)) AndAlso HasValidParameters(method)
-        End Function
-
-        Private Function GetMethodsAnnotatedWith(Of T As Attribute)(rule As Object) As List(Of MethodInfo)
+        Private Shared Function GetMethodsAnnotatedWith(Of T As Attribute)(rule As Object) As List(Of MethodInfo)
             Return rule.GetType().GetMethods().Where(Function(method) method.IsDefined(GetType(T))).ToList()
         End Function
     End Class

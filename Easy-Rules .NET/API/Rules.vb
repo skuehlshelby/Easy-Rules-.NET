@@ -1,6 +1,4 @@
-﻿Imports RulesEngine.Core
-
-Namespace API
+﻿Namespace API
 
     Public Class Rules
         Implements IEnumerable(Of Rule)
@@ -20,7 +18,7 @@ Namespace API
         End Sub
 
         Public Sub Register(rule As Rule)
-            NullGuard.RequireNonNull(rule, NameOf(rule))
+            RequireNonNull(rule, NameOf(rule))
 
             Unregister(rule.Name)
 
@@ -30,7 +28,7 @@ Namespace API
         End Sub
 
         Public Sub Unregister(ruleName As String)
-            NullGuard.RequireNonNull(ruleName, NameOf(ruleName))
+            RequireNonNull(ruleName, NameOf(ruleName))
 
             If HasRule(ruleName) Then
                 _rules.Remove(FindRuleByName(ruleName))
@@ -38,7 +36,7 @@ Namespace API
         End Sub
 
         Private Function HasRule(ruleName As String) As Boolean
-            Return _rules.Any(Function(R) R.Name.Equals(ruleName, StringComparison.CurrentCultureIgnoreCase))
+            Return _rules.Any(Function(r) r.Name.Equals(ruleName, StringComparison.CurrentCultureIgnoreCase))
         End Function
 
         Private Function FindRuleByName(ruleName As String) As Rule

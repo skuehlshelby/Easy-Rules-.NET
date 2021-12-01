@@ -54,7 +54,7 @@
 
 #End Region
 
-        Private ReadOnly _Parameters As RulesEngineParameters
+        Private ReadOnly _parameters As RulesEngineParameters
 
         Protected Sub New()
             Me.New(New RulesEngineParameters())
@@ -65,12 +65,12 @@
                 Throw New ArgumentNullException(NameOf(parameters))
             End If
 
-            _Parameters = parameters
+            _parameters = parameters
         End Sub
 
         Public ReadOnly Property Parameters As RulesEngineParameters
             Get
-                Return DirectCast(_Parameters.Clone(), RulesEngineParameters)
+                Return DirectCast(_parameters.Clone(), RulesEngineParameters)
             End Get
         End Property
 

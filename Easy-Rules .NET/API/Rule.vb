@@ -5,22 +5,22 @@
         Implements IComparable(Of Rule)
 
 
-        Public Const DEFAULT_NAME As String = "rule"
+        Public Const DefaultName As String = "rule"
 
-        Public Const DEFAULT_DESCRIPTION As String = "description"
+        Public Const DefaultDescription As String = "description"
 
-        Public Const DEFAULT_PRIORITY As Integer = Integer.MaxValue
+        Public Const DefaultPriority As Integer = Integer.MaxValue
 
         Protected Sub New()
-            Me.New(DEFAULT_NAME, DEFAULT_DESCRIPTION, DEFAULT_PRIORITY)
+            Me.New(DefaultName, DefaultDescription, DefaultPriority)
         End Sub
 
         Protected Sub New(name As String)
-            Me.New(name, DEFAULT_DESCRIPTION, DEFAULT_PRIORITY)
+            Me.New(name, DefaultDescription, DefaultPriority)
         End Sub
 
         Protected Sub New(name As String, description As String)
-            Me.New(name, description, DEFAULT_PRIORITY)
+            Me.New(name, description, DefaultPriority)
         End Sub
 
         Protected Sub New(name As String, description As String, priority As Integer)
@@ -35,9 +35,9 @@
 
         Public Property Priority As Integer
 
-        Public MustOverride Function Evaluate(Facts As Facts) As Boolean
+        Public MustOverride Function Evaluate(facts As Facts) As Boolean
 
-        Public MustOverride Sub Execute(Facts As Facts)
+        Public MustOverride Sub Execute(facts As Facts)
 
         Public Overrides Function ToString() As String
             Return Name

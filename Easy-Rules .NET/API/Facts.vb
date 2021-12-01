@@ -1,4 +1,4 @@
-﻿Imports RulesEngine.Core
+﻿Imports Easy_Rules_.NET.Core
 
 Namespace API
     Public Class Facts
@@ -14,11 +14,11 @@ Namespace API
             Return _facts.Contains(fact)
         End Function
 
-        Public Sub Add(Name As String, Value As Object)
-            NullGuard.RequireNonNull(Name, NameOf(Name))
-            NullGuard.RequireNonNull(Value, NameOf(Value))
+        Public Sub Add(name As String, value As Object)
+            NullGuard.RequireNonNull(name, NameOf(name))
+            NullGuard.RequireNonNull(value, NameOf(value))
 
-            Add(New Fact(Name, Value))
+            Add(New Fact(name, value))
         End Sub
 
         Public Sub Add(fact As Fact)

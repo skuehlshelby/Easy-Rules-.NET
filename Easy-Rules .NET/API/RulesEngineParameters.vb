@@ -3,16 +3,16 @@
     Public Class RulesEngineParameters
         Implements ICloneable
 
-        Public Const DEFAULT_RULE_PRIORITY_THRESHOLD As Integer = Integer.MaxValue
+        Public Const DefaultRulePriorityThreshold As Integer = Integer.MaxValue
 
         Public Sub New()
-            PriorityThreshold = DEFAULT_RULE_PRIORITY_THRESHOLD
+            PriorityThreshold = DefaultRulePriorityThreshold
             SkipOnFirstAppliedRule = False
             SkipOnFirstNonTriggeredRule = False
             SkipOnFirstFailedRule = False
         End Sub
 
-        Public Sub New(Optional skipOnFirstAppliedRule As Boolean = False, Optional skipOnFirstNonTriggeredRule As Boolean = False, Optional skipOnFirstFailedRule As Boolean = False, Optional priorityThreshold As Integer = DEFAULT_RULE_PRIORITY_THRESHOLD)
+        Public Sub New(Optional skipOnFirstAppliedRule As Boolean = False, Optional skipOnFirstNonTriggeredRule As Boolean = False, Optional skipOnFirstFailedRule As Boolean = False, Optional priorityThreshold As Integer = DefaultRulePriorityThreshold)
             Me.PriorityThreshold = priorityThreshold
             Me.SkipOnFirstAppliedRule = skipOnFirstAppliedRule
             Me.SkipOnFirstNonTriggeredRule = skipOnFirstNonTriggeredRule
@@ -35,7 +35,7 @@
         End Function
 
         Public Function Clone() As Object Implements ICloneable.Clone
-            Return New RulesEngineParameters(SkipOnFirstAppliedRule, SkipOnFirstNonTriggeredRule, SkipOnFirstFailedRule, PriorityThreshold)
+            Return MemberwiseClone()
         End Function
     End Class
 

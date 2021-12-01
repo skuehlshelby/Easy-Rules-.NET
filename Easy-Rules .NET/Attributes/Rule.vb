@@ -4,7 +4,7 @@
     Public Class Rule
         Inherits Attribute
 
-        Public Sub New(Optional name As String = API.Rule.DEFAULT_NAME, Optional description As String = API.Rule.DEFAULT_DESCRIPTION, Optional priority As Integer = API.Rule.DEFAULT_PRIORITY)
+        Public Sub New(Optional name As String = API.Rule.DefaultName, Optional description As String = API.Rule.DefaultDescription, Optional priority As Integer = API.Rule.DefaultPriority)
             Me.Name = name
             Me.Description = description
             Me.Priority = priority

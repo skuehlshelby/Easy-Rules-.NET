@@ -1,11 +1,11 @@
-﻿Imports RulesEngine.API
+﻿Imports Easy_Rules_.NET.API
 
 Namespace Core
 
     Public Class InferenceRulesEngine
-        Inherits API.RulesEngine
+        Inherits RulesEngine
 
-        Private ReadOnly _RulesEngine As API.RulesEngine
+        Private ReadOnly _rulesEngine As RulesEngine
 
         Public Sub New()
             Me.New(New RulesEngineParameters())
@@ -13,12 +13,12 @@ Namespace Core
 
         Public Sub New(parameters As RulesEngineParameters)
             MyBase.New(parameters)
-            _RulesEngine = New DefaultRulesEngine(parameters)
+            _rulesEngine = New DefaultRulesEngine(parameters)
         End Sub
 
         Public Overrides Sub Fire(rules As Rules, facts As Facts)
-            NullGuard.RequireNonNull(rules, NameOf(rules))
-            NullGuard.RequireNonNull(facts, NameOf(facts))
+            RequireNonNull(rules, NameOf(rules))
+            RequireNonNull(facts, NameOf(facts))
 
             Dim selectedRules As ISet(Of Rule)
 
@@ -26,7 +26,7 @@ Namespace Core
                 selectedRules = SelectCandidates(rules, facts)
 
                 If selectedRules.Any() Then
-                    _RulesEngine.Fire(New Rules(selectedRules.ToArray()), facts)
+                    _rulesEngine.Fire(New Rules(selectedRules.ToArray()), facts)
                 Else
 
                 End If
@@ -38,10 +38,10 @@ Namespace Core
         End Function
 
         Public Overrides Function Check(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
-            NullGuard.RequireNonNull(rules, NameOf(rules))
-            NullGuard.RequireNonNull(facts, NameOf(facts))
+            RequireNonNull(rules, NameOf(rules))
+            RequireNonNull(facts, NameOf(facts))
 
-            Return _RulesEngine.Check(rules, facts)
+            Return _rulesEngine.Check(rules, facts)
         End Function
     End Class
 

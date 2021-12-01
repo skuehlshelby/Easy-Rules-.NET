@@ -1,4 +1,6 @@
-﻿Namespace API
+﻿Imports Easy_Rules_.NET.Core
+
+Namespace API
     Public Class Fact
         Implements IEquatable(Of Fact)
 
@@ -40,7 +42,7 @@
             Do
                 name = type.Name
                 type = type.BaseType
-            Loop Until type.Name = GetType(Object).Name
+            Loop Until type Is GetType(Object)
 
             Return name
         End Function

@@ -1,11 +1,11 @@
-﻿Imports RulesEngine.API
+﻿Imports Easy_Rules_.NET.API
 
 Namespace Core
 
     Public Class RuleBuilder
-        Private _name As String = Rule.DEFAULT_NAME
-        Private _description As String = Rule.DEFAULT_DESCRIPTION
-        Private _priority As Integer = Rule.DEFAULT_PRIORITY
+        Private _name As String = Rule.DefaultName
+        Private _description As String = Rule.DefaultDescription
+        Private _priority As Integer = Rule.DefaultPriority
 
         Private _condition As Func(Of Facts, Boolean) = Function(F) False
         Private _actions As List(Of Action(Of Facts)) = New List(Of Action(Of Facts))
