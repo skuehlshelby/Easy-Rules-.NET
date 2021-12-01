@@ -1,4 +1,5 @@
 ﻿Imports Easy_Rules_.NET.API
+Imports Microsoft.Extensions.Logging
 
 Namespace Core
 
@@ -6,6 +7,7 @@ Namespace Core
         Inherits RulesEngine
 
         Private ReadOnly _rulesEngine As RulesEngine
+        Private ReadOnly _logger As ILogger = GetLogger(Of InferenceRulesEngine)()
 
         Public Sub New()
             Me.New(New RulesEngineParameters())
@@ -23,18 +25,19 @@ Namespace Core
             Dim selectedRules As ISet(Of Rule)
 
             Do
+                _logger.LogDebug("Selecting candidate rules based on the following {facts}", facts)
                 selectedRules = SelectCandidates(rules, facts)
 
                 If selectedRules.Any() Then
                     _rulesEngine.Fire(New Rules(selectedRules.ToArray()), facts)
                 Else
-
+                    _logger.LogDebug("No candidate rules found for {facts}", facts)
                 End If
             Loop Until selectedRules.Count = 0
         End Sub
 
-        Private Function SelectCandidates(rules As Rules, facts As Facts) As SortedSet(Of Rule)
-            Throw New NotImplementedException()
+        Private Shared Function SelectCandidates(rules As Rules, facts As Facts) As HashSet(Of Rule)
+            Return rules.Where(Function(r) r.Evaluate(facts)).ToHashSet()
         End Function
 
         Public Overrides Function Check(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
