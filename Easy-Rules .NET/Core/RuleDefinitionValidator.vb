@@ -1,6 +1,6 @@
 ﻿Imports System.Reflection
-Imports Easy_Rules_.NET.API
-Imports Easy_Rules_.NET.Attributes
+Imports EasyRules.API
+Imports EasyRules.Attributes
 
 Namespace Core
     Public Class RuleDefinitionValidator
@@ -85,7 +85,7 @@ Namespace Core
                 HasValidParameters(method)
         End Function
 
-        Private Shared Function HasValidParameters(method As MethodBase) As Boolean
+        Private Shared Function HasValidParameters(method As MethodInfo) As Boolean
             Dim parameters As ParameterInfo() = method.GetParameters()
 
             If parameters.Length = 0 Then
@@ -101,9 +101,9 @@ Namespace Core
 
         Private Shared Function IsPriorityMethodWellDefined(method As MethodInfo) As Boolean
             Return _
-                method.IsPublic AndAlso 
+                method.IsPublic AndAlso
                 method.ReturnType Is GetType(Integer) AndAlso
-                Not method.GetParameters().Any()
+                method.GetParameters().Length = 0
         End Function
 
         Private Shared Function GetMethodsAnnotatedWith(Of T As Attribute)(rule As Object) As List(Of MethodInfo)

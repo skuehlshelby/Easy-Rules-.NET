@@ -1,4 +1,4 @@
-﻿Imports Easy_Rules_.NET.API
+﻿Imports EasyRules.API
 Imports Microsoft.Extensions.Logging
 
 Namespace Core
@@ -6,8 +6,7 @@ Namespace Core
     Public Class InferenceRulesEngine
         Inherits RulesEngine
 
-        Private ReadOnly _rulesEngine As RulesEngine
-        Private ReadOnly _logger As ILogger = GetLogger(Of InferenceRulesEngine)()
+        Private ReadOnly _rulesEngine As DefaultRulesEngine
 
         Public Sub New()
             Me.New(New RulesEngineParameters())
@@ -19,8 +18,8 @@ Namespace Core
         End Sub
 
         Public Overrides Sub Fire(rules As Rules, facts As Facts)
-            RequireNonNull(rules, NameOf(rules))
-            RequireNonNull(facts, NameOf(facts))
+            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
+            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
 
             Dim selectedRules As ISet(Of Rule)
 
@@ -41,8 +40,8 @@ Namespace Core
         End Function
 
         Public Overrides Function Check(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
-            RequireNonNull(rules, NameOf(rules))
-            RequireNonNull(facts, NameOf(facts))
+            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
+            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
 
             Return _rulesEngine.Check(rules, facts)
         End Function

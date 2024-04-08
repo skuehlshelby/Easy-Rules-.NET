@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>Easy_Rules_.NET</RootNamespace>
-    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>EasyRules</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
     <OptionStrict>On</OptionStrict>
   </PropertyGroup>
 

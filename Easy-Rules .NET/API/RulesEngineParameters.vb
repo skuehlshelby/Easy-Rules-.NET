@@ -1,6 +1,9 @@
-﻿Namespace API
+﻿Imports Microsoft.Extensions.Logging
+Imports Microsoft.Extensions.Logging.Abstractions
 
-    Public Class RulesEngineParameters
+Namespace API
+
+    Public NotInheritable Class RulesEngineParameters
         Implements ICloneable
 
         Public Const DefaultRulePriorityThreshold As Integer = Integer.MaxValue
@@ -12,20 +15,19 @@
             SkipOnFirstFailedRule = False
         End Sub
 
-        Public Sub New(Optional skipOnFirstAppliedRule As Boolean = False, Optional skipOnFirstNonTriggeredRule As Boolean = False, Optional skipOnFirstFailedRule As Boolean = False, Optional priorityThreshold As Integer = DefaultRulePriorityThreshold)
+        Public Sub New(Optional skipOnFirstAppliedRule As Boolean = False, Optional skipOnFirstNonTriggeredRule As Boolean = False, Optional skipOnFirstFailedRule As Boolean = False, Optional priorityThreshold As Integer = DefaultRulePriorityThreshold, Optional loggerFactory As ILoggerFactory = Nothing)
             Me.PriorityThreshold = priorityThreshold
             Me.SkipOnFirstAppliedRule = skipOnFirstAppliedRule
             Me.SkipOnFirstNonTriggeredRule = skipOnFirstNonTriggeredRule
             Me.SkipOnFirstFailedRule = skipOnFirstFailedRule
+            Me.LoggerFactory = If(loggerFactory, NullLoggerFactory.Instance)
         End Sub
 
         Public Property PriorityThreshold As Integer
-
         Public Property SkipOnFirstAppliedRule As Boolean
-
         Public Property SkipOnFirstNonTriggeredRule As Boolean
-
         Public Property SkipOnFirstFailedRule As Boolean
+        Public Property LoggerFactory As ILoggerFactory
 
         Public Overrides Function ToString() As String
             Dim properties As String() = {NameOf(SkipOnFirstAppliedRule), NameOf(SkipOnFirstNonTriggeredRule), NameOf(SkipOnFirstFailedRule), NameOf(PriorityThreshold)}

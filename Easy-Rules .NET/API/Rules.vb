@@ -18,7 +18,7 @@
         End Sub
 
         Public Sub Register(rule As Rule)
-            RequireNonNull(rule, NameOf(rule))
+            ArgumentNullException.ThrowIfNull(rule, NameOf(rule))
 
             Unregister(rule.Name)
 
@@ -28,7 +28,7 @@
         End Sub
 
         Public Sub Unregister(ruleName As String)
-            RequireNonNull(ruleName, NameOf(ruleName))
+            ArgumentException.ThrowIfNullOrWhiteSpace(ruleName, NameOf(ruleName))
 
             If HasRule(ruleName) Then
                 _rules.Remove(FindRuleByName(ruleName))
@@ -44,7 +44,7 @@
         End Function
 
         Public Function IsEmpty() As Boolean
-            Return Not _rules.Any()
+            Return _rules.Count = 0
         End Function
 
         Public Sub Clear()

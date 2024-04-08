@@ -2,7 +2,7 @@
 
 Namespace Core
 
-    Public Class ActionMethodOrder
+    Public NotInheritable Class ActionMethodOrder
         Implements IComparable(Of ActionMethodOrder)
 
         Public Sub New(order As Integer, method As MethodInfo)
@@ -11,7 +11,6 @@ Namespace Core
         End Sub
 
         Public ReadOnly Property Order As Integer
-
         Public ReadOnly Property Method As MethodInfo
 
         Public Function CompareTo(other As ActionMethodOrder) As Integer Implements IComparable(Of ActionMethodOrder).CompareTo

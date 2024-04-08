@@ -1,7 +1,7 @@
 ﻿Imports System.Reflection
 Imports System.Runtime.InteropServices
-Imports Easy_Rules_.NET.API
-Imports Easy_Rules_.NET.Attributes
+Imports EasyRules.API
+Imports EasyRules.Attributes
 
 Namespace Core
 
@@ -103,7 +103,7 @@ Namespace Core
                 _factNames.AddRange(GetFactNames(method))
             End Sub
 
-            Private Shared Function GetFactNames(method As MethodBase) As IEnumerable(Of String)
+            Private Shared Function GetFactNames(method As MethodInfo) As IEnumerable(Of String)
                 Return method.GetParameters() _
                              .Select(Function(param) param.GetCustomAttribute(Of Attributes.Fact).FactName)
             End Function
@@ -145,7 +145,7 @@ Namespace Core
                 _factNames.AddRange(GetFactNames(method))
             End Sub
 
-            Private Shared Function GetFactNames(method As MethodBase) As IEnumerable(Of String)
+            Private Shared Function GetFactNames(method As MethodInfo) As IEnumerable(Of String)
                 Return method.GetParameters() _
                              .Select(Function(param) param.GetCustomAttribute(Of Attributes.Fact).FactName)
             End Function

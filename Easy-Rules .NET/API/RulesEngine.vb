@@ -1,4 +1,6 @@
-﻿Namespace API
+﻿Imports Microsoft.Extensions.Logging
+
+Namespace API
 
     Public MustInherit Class RulesEngine
 
@@ -55,17 +57,17 @@
 #End Region
 
         Private ReadOnly _parameters As RulesEngineParameters
+        Protected ReadOnly _logger As ILogger
 
         Protected Sub New()
             Me.New(New RulesEngineParameters())
         End Sub
 
         Protected Sub New(parameters As RulesEngineParameters)
-            If parameters Is Nothing Then
-                Throw New ArgumentNullException(NameOf(parameters))
-            End If
+            ArgumentNullException.ThrowIfNull(parameters)
 
             _parameters = parameters
+            _logger = parameters.LoggerFactory.CreateLogger(Of RulesEngine)()
         End Sub
 
         Public ReadOnly Property Parameters As RulesEngineParameters

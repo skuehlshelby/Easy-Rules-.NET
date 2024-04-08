@@ -1,12 +1,10 @@
-﻿Imports Easy_Rules_.NET.API
+﻿Imports EasyRules.API
 Imports Microsoft.Extensions.Logging
 
 Namespace Core
 
     Public Class DefaultRulesEngine
         Inherits RulesEngine
-
-        Private ReadOnly _logger As ILogger = GetLogger(Of DefaultRulesEngine)()
 
         Public Sub New()
             MyBase.New()
@@ -17,8 +15,8 @@ Namespace Core
         End Sub
 
         Public Overrides Sub Fire(rules As Rules, facts As Facts)
-            RequireNonNull(rules, NameOf(rules))
-            RequireNonNull(facts, NameOf(facts))
+            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
+            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
 
             RaiseBeforeRulesEvaluation(Me, New RulesEngineEventArgs(rules, facts))
 
@@ -32,19 +30,19 @@ Namespace Core
                 Return
             End If
 
-            _logger.LogInformation("Beginning evaluation of rules.")
-            _logger.LogInformation(rules.ToString())
-            _logger.LogInformation(facts.ToString())
-            
+            _logger.LogInformation("Beginning evaluation of rules")
+            _logger.LogInformation("{Rules}", rules)
+            _logger.LogInformation("{Facts}", facts.ToString())
+
 
             For Each rule As Rule In rules
                 If rule.Priority > Parameters.PriorityThreshold Then
-                    _logger.LogInformation($"Rule priority threshold ({Parameters.PriorityThreshold}) exceeded at rule '{rule.Name}' with priority={rule.Priority}. The next rules will be skipped.")
+                    _logger.LogInformation("Rule priority threshold ({PriorityThreshold}) exceeded at rule '{RuleName}' with priority={Priority}. The next rules will be skipped.", Parameters.PriorityThreshold, rule.Name, rule.Priority)
                     Exit For
                 End If
 
                 If Not ShouldBeEvaluated(rule, facts) Then
-                    _logger.LogInformation($"Rule '{rule.Name}' has been skipped before being evaluated.")
+                    _logger.LogInformation("Rule '{RuleName}' has been skipped before being evaluated.", rule.Name)
                     Continue For
                 End If
 
@@ -57,13 +55,13 @@ Namespace Core
                     RaiseOnEvaluationError(Me, New RuleFailureEventArgs(rule, facts, ex))
 
                     If Parameters.SkipOnFirstNonTriggeredRule Then
-                        _logger.LogInformation($"Subsequent rules will be skipped because {NameOf(Parameters.SkipOnFirstNonTriggeredRule)} is true.")
+                        _logger.LogInformation("Subsequent rules will be skipped because {Parameters} is {SkipOnFirstNonTriggeredRule}", NameOf(Parameters.SkipOnFirstNonTriggeredRule), Parameters.SkipOnFirstNonTriggeredRule)
                         Exit For
                     End If
                 End Try
 
                 If evaluationResult Then
-                    _logger.LogInformation($"Rule '{rule.Name}' was triggered.")
+                    _logger.LogInformation("Rule '{RuleName}' was triggered", rule.Name)
                     RaiseAfterEvaluate(Me, New RuleEventArgs(rule, facts))
 
                     Try
@@ -71,17 +69,17 @@ Namespace Core
 
                         rule.Execute(facts)
 
-                        _logger.LogInformation($"Rule '{rule.Name}' was performed successfully.")
+                        _logger.LogInformation("Rule '{RuleName}' was performed successfully", rule.Name)
 
                         RaiseAfterExecute(Me, New RuleEventArgs(rule, facts))
 
                         If Parameters.SkipOnFirstAppliedRule Then
-                            _logger.LogInformation($"Subsequent rules will be skipped because {NameOf(Parameters.SkipOnFirstAppliedRule)} is true.")
+                            _logger.LogInformation("Subsequent rules will be skipped because {Parameters} is {SkipOnFirstAppliedRule}", NameOf(Parameters.SkipOnFirstAppliedRule), Parameters.SkipOnFirstAppliedRule)
                             Exit For
                         End If
 
                     Catch ex As Exception
-                        _logger.LogError($"Rule '{rule.Name}' was performed with error {ex}.")
+                        _logger.LogError("Rule '{RuleName}' was performed with error {Exception}", rule.Name, ex)
                         RaiseOnExecutionError(Me, New RuleFailureEventArgs(rule, facts, ex))
 
                         If Parameters.SkipOnFirstFailedRule Then
@@ -89,11 +87,11 @@ Namespace Core
                         End If
                     End Try
                 Else
-                    _logger.LogInformation($"Rule '{rule.Name}' evaluated to false and was not executed.")
+                    _logger.LogInformation("Rule '{RuleName}' evaluated to false and was not executed.", rule.Name)
                     RaiseAfterEvaluate(Me, New RuleEventArgs(rule, facts))
 
                     If Parameters.SkipOnFirstNonTriggeredRule Then
-                        _logger.LogInformation($"Subsequent rules will be skipped because {NameOf(Parameters.SkipOnFirstNonTriggeredRule)} is true.")
+                        _logger.LogInformation("Subsequent rules will be skipped because {Parameters} is {SkipOnFirstNonTriggeredRule}", NameOf(Parameters.SkipOnFirstNonTriggeredRule), Parameters.SkipOnFirstNonTriggeredRule)
                         Exit For
                     End If
                 End If
@@ -109,8 +107,8 @@ Namespace Core
         End Function
 
         Public Overrides Function Check(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
-            RequireNonNull(rules, NameOf(rules))
-            RequireNonNull(facts, NameOf(facts))
+            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
+            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
 
             Try
                 RaiseBeforeRulesEvaluation(Me, New RulesEngineEventArgs(rules, facts))
@@ -122,7 +120,7 @@ Namespace Core
         End Function
 
         Private Function DoCheck(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
-            _logger.LogInformation("Checking rules.")
+            _logger.LogInformation("Checking rules")
 
             Dim result As Dictionary(Of Rule, Boolean) = New Dictionary(Of Rule, Boolean)
 

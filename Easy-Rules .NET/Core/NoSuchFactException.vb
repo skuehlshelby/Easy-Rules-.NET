@@ -19,10 +19,6 @@ Namespace Core
             Me.MissingFact = missingFact
         End Sub
 
-        Protected Sub New(info As SerializationInfo, context As StreamingContext)
-            MyBase.New(info, context)
-        End Sub
-
         Public ReadOnly Property MissingFact As String
     End Class
 

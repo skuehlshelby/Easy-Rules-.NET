@@ -1,4 +1,4 @@
-﻿Imports Easy_Rules_.NET.API
+﻿Imports EasyRules.API
 
 Namespace Core
 

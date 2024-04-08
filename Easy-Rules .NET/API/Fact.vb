@@ -1,18 +1,17 @@
-﻿Imports Easy_Rules_.NET.Core
+﻿Imports EasyRules.Core
 
 Namespace API
     Public Class Fact
         Implements IEquatable(Of Fact)
 
         Public Sub New(name As String, value As Object)
-            NullGuard.RequireNonNull(name, NameOf(name))
-            NullGuard.RequireNonNull(value, NameOf(value))
+            ArgumentException.ThrowIfNullOrWhiteSpace(name, NameOf(name))
+            ArgumentNullException.ThrowIfNull(value, NameOf(value))
             Me.Name = name
             Me.Value = value
         End Sub
 
         Public ReadOnly Property Name As String
-
         Public ReadOnly Property Value As Object
 
         Public Function Unwrap(Of T)() As T
