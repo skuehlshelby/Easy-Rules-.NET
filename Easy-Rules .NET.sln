@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31829.152
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Easy-Rules .NET", "Easy-Rules .NET\Easy-Rules .NET.vbproj", "{B3DA91A6-FC7A-489B-8B0C-E2C24E929F8F}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Easy-Rules .NET", "Easy-Rules .NET\Easy-Rules .NET.vbproj", "{B3DA91A6-FC7A-489B-8B0C-E2C24E929F8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B3DA91A6-FC7A-489B-8B0C-E2C24E929F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3DA91A6-FC7A-489B-8B0C-E2C24E929F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3DA91A6-FC7A-489B-8B0C-E2C24E929F8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
