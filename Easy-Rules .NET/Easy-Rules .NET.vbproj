@@ -2,8 +2,22 @@
 
   <PropertyGroup>
     <RootNamespace>EasyRules</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OptionStrict>On</OptionStrict>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Easy Rules .NET</Title>
+    <Description>The simple, stupid rules engine for .NET</Description>
+    <PackageProjectUrl>https://github.com/j-easy/easy-rules</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/skuehlshelby/Easy-Rules-.NET</RepositoryUrl>
+    <PackageTags>rules-engine;rule-engine;business-rules</PackageTags>
+    <PackageIcon>26787207.png</PackageIcon>
+    <PackageId>EasyRules</PackageId>
+    <Authors>skuehlshelby</Authors>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (c) 2024 Scott Kuehl-Shelby And Mahmoud Ben Hassine</Copyright>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,7 +37,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\..\..\Downloads\26787207.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -18,8 +18,8 @@ Namespace Core
         End Sub
 
         Public Overrides Sub Fire(rules As Rules, facts As Facts)
-            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
-            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
+            If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
+            If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
 
             Dim selectedRules As ISet(Of Rule)
 
@@ -36,12 +36,12 @@ Namespace Core
         End Sub
 
         Private Shared Function SelectCandidates(rules As Rules, facts As Facts) As HashSet(Of Rule)
-            Return rules.Where(Function(r) r.Evaluate(facts)).ToHashSet()
+            Return New HashSet(Of Rule)(rules.Where(Function(r) r.Evaluate(facts)))
         End Function
 
         Public Overrides Function Check(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
-            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
-            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
+            If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
+            If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
 
             Return _rulesEngine.Check(rules, facts)
         End Function

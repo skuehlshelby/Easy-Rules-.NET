@@ -13,6 +13,7 @@ Namespace API
             SkipOnFirstAppliedRule = False
             SkipOnFirstNonTriggeredRule = False
             SkipOnFirstFailedRule = False
+            LoggerFactory = NullLoggerFactory.Instance
         End Sub
 
         Public Sub New(Optional skipOnFirstAppliedRule As Boolean = False, Optional skipOnFirstNonTriggeredRule As Boolean = False, Optional skipOnFirstFailedRule As Boolean = False, Optional priorityThreshold As Integer = DefaultRulePriorityThreshold, Optional loggerFactory As ILoggerFactory = Nothing)

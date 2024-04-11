@@ -3,7 +3,7 @@
     Public Class Rules
         Implements IEnumerable(Of Rule)
 
-        Private ReadOnly _rules As List(Of Rule) = New List(Of Rule)
+        Private ReadOnly _rules As New List(Of Rule)
 
         Public Sub New(ParamArray rules As Rule())
             For Each rule As Rule In rules
@@ -18,7 +18,7 @@
         End Sub
 
         Public Sub Register(rule As Rule)
-            ArgumentNullException.ThrowIfNull(rule, NameOf(rule))
+            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
 
             Unregister(rule.Name)
 
@@ -28,7 +28,7 @@
         End Sub
 
         Public Sub Unregister(ruleName As String)
-            ArgumentException.ThrowIfNullOrWhiteSpace(ruleName, NameOf(ruleName))
+            If String.IsNullOrWhiteSpace(ruleName) Then Throw New ArgumentException($"'{NameOf(ruleName)}' cannot be null or empty.", NameOf(ruleName))
 
             If HasRule(ruleName) Then
                 _rules.Remove(FindRuleByName(ruleName))

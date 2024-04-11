@@ -13,14 +13,14 @@
 		End Function
 
 		Public Sub Add(name As String, value As Object)
-			ArgumentNullException.ThrowIfNull(name, NameOf(name))
-			ArgumentNullException.ThrowIfNull(value, NameOf(value))
+			If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
+			If value Is Nothing Then Throw New ArgumentNullException(NameOf(value))
 
 			Add(New Fact(name, value))
 		End Sub
 
 		Public Sub Add(fact As Fact)
-			ArgumentNullException.ThrowIfNull(fact, NameOf(fact))
+			If fact Is Nothing Then Throw New ArgumentNullException(NameOf(fact))
 
 			Remove(fact)
 
@@ -28,7 +28,7 @@
 		End Sub
 
 		Public Sub Remove(factName As String)
-			ArgumentException.ThrowIfNullOrWhiteSpace(factName, NameOf(factName))
+			If String.IsNullOrWhiteSpace(factName) Then Throw New ArgumentException($"'{NameOf(factName)}' cannot be null or empty.", NameOf(factName))
 
 			If HasFact(factName) Then
 				Remove(GetFact(factName))
@@ -36,15 +36,25 @@
 		End Sub
 
 		Public Sub Remove(fact As Fact)
-			ArgumentNullException.ThrowIfNull(fact, NameOf(fact))
+			If fact Is Nothing Then Throw New ArgumentNullException(NameOf(fact))
 
 			_facts.Remove(fact)
 		End Sub
 
 		Public Function GetFact(factName As String) As Fact
-			ArgumentException.ThrowIfNullOrWhiteSpace(factName, NameOf(factName))
+			If String.IsNullOrWhiteSpace(factName) Then Throw New ArgumentException($"'{NameOf(factName)}' cannot be null or empty.", NameOf(factName))
 
 			Return _facts.Single(Function(fact) fact.Name = factName)
+		End Function
+
+		Public Function GetFact(Of T)(factName As String, value As T) As Boolean
+			If String.IsNullOrWhiteSpace(factName) Then Throw New ArgumentException($"'{NameOf(factName)}' cannot be null or empty.", NameOf(factName))
+
+			Dim fact = _facts.FirstOrDefault(Function(f) f.Name = factName)
+
+			If fact Is Nothing Then Return False
+
+			Return fact.Value.Equals(value)
 		End Function
 
 		Public Function ToDictionary() As Dictionary(Of String, Fact)

@@ -32,7 +32,7 @@ Namespace Core
         End Function
 
         Public Overrides Function GetHashCode() As Integer
-            Return HashCode.Combine(Order, Method)
+            Return (Order, Method).GetHashCode()
         End Function
     End Class
 

@@ -64,7 +64,7 @@ Namespace API
         End Sub
 
         Protected Sub New(parameters As RulesEngineParameters)
-            ArgumentNullException.ThrowIfNull(parameters)
+            If parameters Is Nothing Then Throw New ArgumentNullException(NameOf(parameters))
 
             _parameters = parameters
             _logger = parameters.LoggerFactory.CreateLogger(Of RulesEngine)()

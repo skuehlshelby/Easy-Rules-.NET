@@ -15,8 +15,8 @@ Namespace Core
         End Sub
 
         Public Overrides Sub Fire(rules As Rules, facts As Facts)
-            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
-            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
+            If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
+            If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
 
             RaiseBeforeRulesEvaluation(Me, New RulesEngineEventArgs(rules, facts))
 
@@ -99,6 +99,9 @@ Namespace Core
         End Sub
 
         Private Function ShouldBeEvaluated(rule As Rule, facts As Facts) As Boolean
+            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(Rules))
+            If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+
             Dim e As RuleEventArgs = New RuleEventArgs(rule, facts)
 
             RaiseBeforeRuleEvaluation(Me, e)
@@ -107,8 +110,8 @@ Namespace Core
         End Function
 
         Public Overrides Function Check(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
-            ArgumentNullException.ThrowIfNull(rules, NameOf(rules))
-            ArgumentNullException.ThrowIfNull(facts, NameOf(facts))
+            If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
+            If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
 
             Try
                 RaiseBeforeRulesEvaluation(Me, New RulesEngineEventArgs(rules, facts))
@@ -120,6 +123,9 @@ Namespace Core
         End Function
 
         Private Function DoCheck(rules As Rules, facts As Facts) As Dictionary(Of Rule, Boolean)
+            If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
+            If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+
             _logger.LogInformation("Checking rules")
 
             Dim result As Dictionary(Of Rule, Boolean) = New Dictionary(Of Rule, Boolean)

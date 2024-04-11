@@ -9,6 +9,8 @@ Namespace Core
         Private Shared ReadOnly Validator As RuleDefinitionValidator = New RuleDefinitionValidator()
 
         Public Shared Function AsRule(rule As Object) As API.Rule
+            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
+
             If TypeOf rule Is API.Rule Then
                 Return DirectCast(rule, API.Rule)
             Else
