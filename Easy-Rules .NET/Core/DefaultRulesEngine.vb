@@ -99,10 +99,10 @@ Namespace Core
         End Sub
 
         Private Function ShouldBeEvaluated(rule As Rule, facts As Facts) As Boolean
-            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(Rules))
+            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
             If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
 
-            Dim e As RuleEventArgs = New RuleEventArgs(rule, facts)
+            Dim e As New RuleEventArgs(rule, facts)
 
             RaiseBeforeRuleEvaluation(Me, e)
 

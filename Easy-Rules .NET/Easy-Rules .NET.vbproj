@@ -31,9 +31,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="API\" />
     <Folder Include="Attributes\" />
-    <Folder Include="Core\" />
   </ItemGroup>
 
   <ItemGroup>
