@@ -10,7 +10,6 @@
     <PackageProjectUrl>https://github.com/j-easy/easy-rules</PackageProjectUrl>
     <RepositoryUrl>https://github.com/skuehlshelby/Easy-Rules-.NET</RepositoryUrl>
     <PackageTags>rules-engine;rule-engine;business-rules</PackageTags>
-    <PackageIcon>26787207.png</PackageIcon>
     <PackageId>EasyRules</PackageId>
     <Authors>skuehlshelby</Authors>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -31,16 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="API\" />
     <Folder Include="Attributes\" />
-    <Folder Include="Core\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\..\..\Downloads\26787207.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
   </ItemGroup>
 
   <ItemGroup>

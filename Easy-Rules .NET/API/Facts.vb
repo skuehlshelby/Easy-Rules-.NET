@@ -47,14 +47,24 @@
 			Return _facts.Single(Function(fact) fact.Name = factName)
 		End Function
 
-		Public Function GetFact(Of T)(factName As String, value As T) As Boolean
+		Public Function IsTrue(factName As String) As Boolean
 			If String.IsNullOrWhiteSpace(factName) Then Throw New ArgumentException($"'{NameOf(factName)}' cannot be null or empty.", NameOf(factName))
 
 			Dim fact = _facts.FirstOrDefault(Function(f) f.Name = factName)
 
 			If fact Is Nothing Then Return False
 
-			Return fact.Value.Equals(value)
+			Return TypeOf fact.Value Is Boolean AndAlso DirectCast(fact.Value, Boolean)
+		End Function
+
+		Public Function IsTrue(Of TFactValue)(factName As String, predicate As Predicate(Of TFactValue)) As Boolean
+			If String.IsNullOrWhiteSpace(factName) Then Throw New ArgumentException($"'{NameOf(factName)}' cannot be null or empty.", NameOf(factName))
+
+			Dim fact = _facts.FirstOrDefault(Function(f) f.Name = factName)
+
+			If fact Is Nothing Then Return False
+
+			Return TypeOf fact.Value Is TFactValue AndAlso predicate.Invoke(DirectCast(fact.Value, TFactValue))
 		End Function
 
 		Public Function ToDictionary() As Dictionary(Of String, Fact)

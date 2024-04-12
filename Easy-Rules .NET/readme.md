@@ -41,10 +41,10 @@ public sealed class WeatherRule
 
 ```c#
 var weatherRule = new RuleBuilder()
-        .Name("weather rule")
-        .Description("if it rains then take an umbrella")
-        .When(facts => facts.get("rain").Equals(true))
-        .Then(facts => Console.WriteLine("It rains, take an umbrella!"))
+        .WithName("weather rule")
+        .WithDescription("if it rains then take an umbrella")
+        .ThatWhen(facts => facts.IsTrue("rain"))
+        .ThenDoes(facts => Console.WriteLine("It rains, take an umbrella!"))
         .Build();
 ```
 
@@ -63,11 +63,11 @@ public static class Test
         // define rules
         var weatherRule = ...
         var rules = new Rules();
-        rules.register(weatherRule);
+        rules.Register(weatherRule);
 
         // fire rules on known facts
         var rulesEngine = new DefaultRulesEngine();
-        rulesEngine.fire(rules, facts);
+        rulesEngine.Fire(rules, facts);
     }
 }
 ```

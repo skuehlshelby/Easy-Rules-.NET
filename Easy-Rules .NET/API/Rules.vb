@@ -1,4 +1,6 @@
-﻿Namespace API
+﻿Imports EasyRules.Core
+
+Namespace API
 
     Public Class Rules
         Implements IEnumerable(Of Rule)
@@ -15,6 +17,14 @@
             For Each rule As Rule In rules
                 Register(rule)
             Next rule
+        End Sub
+
+        Public Sub Add(build As Action(Of IRuleBuilder))
+            If build Is Nothing Then Throw New ArgumentNullException(NameOf(build))
+
+            Dim builder = New RuleBuilder()
+            build.Invoke(builder)
+            Register(builder.Build())
         End Sub
 
         Public Sub Register(rule As Rule)

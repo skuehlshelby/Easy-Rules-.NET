@@ -15,14 +15,13 @@ namespace Tests
 
 			var output = string.Empty;
 
-			var rule = new RuleBuilder()
-				.WithName("weather rule")
+			var rules = new Rules()
+			{
+				r => r.WithName("weather rule")
 				.WithDescription("if it rains then take an umbrella")
-				.ThatWhen(facts => facts.GetFact("rain", true))
+				.ThatWhen(facts => facts.IsTrue("rain"))
 				.ThenDoes(facts => output = "It rains, take an umbrella!")
-				.Build();
-
-			var rules = new Rules(rule);
+			};
 
 			var rulesEngine = new DefaultRulesEngine();
 			rulesEngine.Fire(rules, facts);
