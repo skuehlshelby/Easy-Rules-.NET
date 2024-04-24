@@ -51,7 +51,7 @@ Namespace Core
                 Try
                     evaluationResult = rule.Evaluate(facts)
                 Catch ex As Exception
-                    _logger.LogError($"Rule '{rule.Name}' produced error {ex}.")
+                    _logger.LogError("Rule '{RuleName}' produced error {ex}.", rule.Name, ex)
                     RaiseOnEvaluationError(Me, New RuleFailureEventArgs(rule, facts, ex))
 
                     If Parameters.SkipOnFirstNonTriggeredRule Then
@@ -99,7 +99,7 @@ Namespace Core
         End Sub
 
         Private Function ShouldBeEvaluated(rule As Rule, facts As Facts) As Boolean
-            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(Rules))
+            If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
             If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
 
             Dim e As RuleEventArgs = New RuleEventArgs(rule, facts)
