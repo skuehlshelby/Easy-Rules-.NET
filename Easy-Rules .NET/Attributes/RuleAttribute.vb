@@ -1,10 +1,10 @@
 ﻿Namespace Attributes
 
     <AttributeUsage(AttributeTargets.Class, AllowMultiple:=False, Inherited:=True)>
-    Public Class Rule
+    Public Class RuleAttribute
         Inherits Attribute
 
-        Public Sub New(Optional name As String = API.Rule.DefaultName, Optional description As String = API.Rule.DefaultDescription, Optional priority As Integer = API.Rule.DefaultPriority)
+        Public Sub New(name As String, Optional description As String = "No Description Provided", Optional priority As Integer = Integer.MaxValue)
             Me.Name = name
             Me.Description = description
             Me.Priority = priority

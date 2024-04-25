@@ -1,7 +1,7 @@
 ﻿Namespace Attributes
 
     <AttributeUsage(AttributeTargets.Parameter, AllowMultiple:=False, Inherited:=True)>
-    Public Class Fact
+    Public Class FactAttribute
         Inherits Attribute
 
         Public Sub New(factName As String)
