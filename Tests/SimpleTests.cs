@@ -1,6 +1,5 @@
 using Xunit;
 using EasyRules;
-using System;
 
 namespace Tests
 {
