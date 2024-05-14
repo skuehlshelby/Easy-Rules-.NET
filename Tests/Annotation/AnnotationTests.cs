@@ -2,66 +2,67 @@
 using EasyRules.Attributes;
 using System;
 using Xunit;
+using FactAttribute = Xunit.FactAttribute;
 
 namespace Tests.Annotation
 {
 	public sealed class AnnotationTests
 	{
-		[Xunit.Fact]
+		[Fact]
 		public void NotAnnotatedRuleMustNotBeAccepted()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new object()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ConditionMethodMustBeDefined()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithoutConditionMethod()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ConditionMethodMustBePublic()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithNonPublicConditionMethod()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void WhenConditionMethodHasOneNonAnnotatedParameter_ThenThisParameterMustBeOfTypeFacts()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithConditionMethodHavingOneArgumentNotOfTypeFacts()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ConditionMethodMustReturnBooleanType()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithConditionMethodHavingNonBooleanReturnType()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ConditionMethodParametersShouldAllBeAnnotatedWithFactUnlessExactlyOneOfThemIsOfTypeFacts()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithOneParameterNotAnnotatedWithFactAndNotOfTypeFacts()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ActionMethodMustHaveExactlyOneArgumentOfTypeFactsIfAny()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithActionMethodHavingMoreThanOneArgumentOfTypeFacts()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ActionMethodMustBeDefined()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithoutActionMethod()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ActionMethodMustBePublic()
 		{
 			Assert.Throws<ArgumentException>(() => RuleDefinitionValidator.ValidateRuleDefinition(new AnnotatedRuleWithNonPublicActionMethod()));
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void ValidAnnotationsShouldBeAccepted()
 		{
 			try
@@ -75,14 +76,14 @@ namespace Tests.Annotation
 			}
 		}
 
-		[Xunit.Fact]
-		public void AsRuleForPojo()
+		[Fact]
+		public void AsRuleForPoco()
 		{
 			Assert.Throws<ArgumentException>(() => RuleProxy.AsRule(new object()));
 		}
 
-		[Xunit.Fact]
-		public void AsRuleObjectThatImplementsIRule()
+		[Fact]
+		public void AsRuleForObjectThatImplementsIRule()
 		{
 			try
 			{
@@ -94,7 +95,18 @@ namespace Tests.Annotation
 			}
 		}
 
-		[Xunit.Fact]
+		[Fact]
+		public void AsRuleForObjectThatHasProxied()
+		{
+			var rule = new DummyRule();
+			var proxy1 = RuleProxy.AsRule(rule);
+			var proxy2 = RuleProxy.AsRule(proxy1);
+
+			Assert.Equal(proxy1.Name, proxy2.Name);
+			Assert.Equal(proxy1.Description, proxy2.Description);
+		}
+
+		[Fact]
 		public void AsRuleWellFormedAnnotatedRule()
 		{
 			try
@@ -107,7 +119,7 @@ namespace Tests.Annotation
 			}
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void InvokeConditionForProxyRule()
 		{
 			try
@@ -121,7 +133,7 @@ namespace Tests.Annotation
 			}
 		}
 
-		[Xunit.Fact]
+		[Fact]
 		public void InvokeActionForProxyRule()
 		{
 			try
@@ -133,6 +145,38 @@ namespace Tests.Annotation
 			{
 				Assert.Fail("Should not throw exception for valid rule definitions");
 			}
+		}
+
+		[Fact]
+		public void InvokeEquals()
+		{
+			object rule = new DummyRule();
+			var proxy1 = RuleProxy.AsRule(rule);
+			var proxy2 = RuleProxy.AsRule(proxy1);
+			var proxy3 = RuleProxy.AsRule(proxy2);
+
+			// Reflexive
+			Assert.Equal(rule, rule);
+			Assert.Equal(proxy1, proxy1);
+			Assert.Equal(proxy2, proxy2);
+			Assert.Equal(proxy3, proxy3);
+
+			// Symmetric
+			Assert.NotEqual(rule, proxy1);
+			Assert.NotEqual(proxy1, rule);
+			Assert.Equal(proxy1, proxy2);
+			Assert.Equal(proxy2, proxy1);
+
+			// Transitive Consistent
+			Assert.Equal(proxy1, proxy2);
+			Assert.Equal(proxy2, proxy3);
+			Assert.Equal(proxy3, proxy1);
+
+			// Non-Null
+			Assert.NotNull(rule);
+			Assert.NotNull(proxy1);
+			Assert.NotNull(proxy2);
+			Assert.NotNull(proxy3);
 		}
 	}
 }
