@@ -1,7 +1,7 @@
 ﻿Namespace Attributes
 
     <AttributeUsage(AttributeTargets.Method, AllowMultiple:=False, Inherited:=True)>
-    Public Class Action
+    Public Class ActionAttribute
         Inherits Attribute
 
         Public Sub New(Optional order As Integer = 0)

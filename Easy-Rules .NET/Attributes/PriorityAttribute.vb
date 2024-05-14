@@ -1,7 +1,7 @@
 ﻿Namespace Attributes
 
     <AttributeUsage(AttributeTargets.Method, AllowMultiple:=False, Inherited:=True)>
-    Public Class Condition
+    Public Class PriorityAttribute
         Inherits Attribute
 
     End Class

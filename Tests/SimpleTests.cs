@@ -1,5 +1,5 @@
-using EasyRules.API;
-using EasyRules.Core;
+using Xunit;
+using EasyRules;
 
 namespace Tests
 {
@@ -17,14 +17,15 @@ namespace Tests
 
 			var rules = new Rules()
 			{
-				r => r.WithName("weather rule")
-				.WithDescription("if it rains then take an umbrella")
-				.ThatWhen(facts => facts.IsTrue("rain"))
-				.ThenDoes(facts => output = "It rains, take an umbrella!")
+				new Rule(
+					name: "weather rule",
+					description: "if it rains then take an umbrella",
+					condition: f => f.IsTrue("rain"),
+					action: f => output = "It rains, take an umbrella!")
 			};
 
 			var rulesEngine = new DefaultRulesEngine();
-			rulesEngine.Fire(rules, facts);
+			rulesEngine.Execute(rules, facts);
 
 			Assert.Equal("It rains, take an umbrella!", output);
 		}
