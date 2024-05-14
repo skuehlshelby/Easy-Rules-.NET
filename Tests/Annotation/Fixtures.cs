@@ -144,4 +144,16 @@ namespace Tests.Annotation
 		[Action]
 		public void Execute() => Console.WriteLine("It rains, take an umbrella!");
 	}
+
+	[Rule(nameof(DummyRule))]
+	public sealed class DummyRule
+	{
+		[Condition]
+		public bool When() => true;
+
+		[Action]
+		public void Then() { }
+
+		public override string ToString() => "I am a dummy rule";
+	}
 }
