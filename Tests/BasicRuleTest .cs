@@ -6,18 +6,23 @@ namespace Tests
 {
 	public class BasicRuleTest : AbstractTest
 	{
-		[Fact]
-		public void BasicRuleEvaluateShouldReturnFalse()
-		{
-			var basicRule = new BasicRule();
-			Assert.False(basicRule.Evaluate(Facts));
+		private readonly IRule rule1;
+		private readonly IRule rule2;
+		private readonly IRule rule3;
+
+        public BasicRuleTest()
+        {
+			rule1 = new Rule(name: nameof(rule1), priority: 1, predicate: ReturnTrue, action: DoNothing);
+			rule2 = new Rule(name: nameof(rule2), priority: 3, predicate: ReturnTrue, action: DoNothing);
+			rule3 = new Rule(name: nameof(rule3), priority: 2, predicate: ReturnTrue, action: DoNothing);
 		}
+
+		private static bool ReturnTrue(IFacts _) => true;
+		private static void DoNothing(IFacts _) { }
 
 		[Fact]
 		public void TestCompareTo()
 		{
-			var rule1 = new FirstRule();
-			var rule2 = new FirstRule();
 			var compareByPriority = new OrderRulesByPriority();
 
 			Assert.Equal(0, compareByPriority.Compare(rule1, rule2));
@@ -27,9 +32,6 @@ namespace Tests
 		[Fact]
 		public void TestSortSequence()
 		{
-			var rule1 = new FirstRule();
-			var rule2 = new SecondRule();
-			var rule3 = new ThirdRule();
 			var rules = new Rules([rule1, rule2, rule3]);
 			
 			var comparer = new EquateRulesByName();
@@ -37,27 +39,6 @@ namespace Tests
 
 			var evaluated = engine.Evaluate(rules, Facts);
 			Assert.Equal(evaluated.Select(kv => kv.Key), [rule1, rule3, rule2], comparer);
-		}
-
-		public class FirstRule : BasicRule
-		{
-			public override string Name => "rule1";
-			public override int Priority => 1;
-			public override bool Evaluate(IFacts facts) => true;
-		}
-
-		public class SecondRule : BasicRule
-		{
-			public override string Name => "rule2";
-			public override int Priority => 3;
-			public override bool Evaluate(IFacts facts) => true;
-		}
-
-		class ThirdRule : BasicRule
-		{
-			public override string Name => "rule3";
-			public override int Priority => 2;
-			public override bool Evaluate(IFacts facts) => true;
 		}
 	}
 }
