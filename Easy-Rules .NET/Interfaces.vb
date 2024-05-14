@@ -71,6 +71,7 @@ Public Class RulesEngineEventArgs
         Me.Facts = facts
         Me.Rules = rules
     End Sub
+
     Public ReadOnly Property Facts As IFacts
 
     Public ReadOnly Property Rules As IRules
