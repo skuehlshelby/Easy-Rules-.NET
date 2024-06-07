@@ -37,39 +37,35 @@ public sealed class WeatherRule
 }
 ```
 
-#### Or in a programmatic way with a fluent API:
+#### Or in a programmatic way:
 
 ```c#
-var weatherRule = new RuleBuilder()
-        .WithName("weather rule")
-        .WithDescription("if it rains then take an umbrella")
-        .ThatWhen(facts => facts.IsTrue("rain"))
-        .ThenDoes(facts => Console.WriteLine("It rains, take an umbrella!"))
-        .Build();
+var weatherRule = new Rule(
+    name: "weather rule",
+    description: "if it rains then take an umbrella",
+    condition: f => f.True(rain),
+    action: _ => Console.WriteLine("It rains, take an umbrella!"));
 ```
 
 ### 2. Then, fire it!
 
 ```c#
-public static class Test
-{
-    public static void Main(String[] args) {
-        // define facts
-        var facts = new Facts()
-        {
-            { "rain", true }
-        };
+    // define facts
+    var facts = new Facts()
+    {
+        { "rain", true }
+    };
 
-        // define rules
-        var weatherRule = ...
-        var rules = new Rules();
-        rules.Register(weatherRule);
+    // define rules
+    var weatherRule = ...
+    var rules = new Rules()
+    {
+        weatherRule
+    };
 
-        // fire rules on known facts
-        var rulesEngine = new DefaultRulesEngine();
-        rulesEngine.Fire(rules, facts);
-    }
-}
+    // fire rules on known facts
+    var rulesEngine = new DefaultRulesEngine();
+    rulesEngine.Fire(rules, facts);
 ```
 
 This is the hello world of Easy Rules. You can find other examples on the original [Easy Rules Wiki](https://github.com/j-easy/easy-rules/wiki).
