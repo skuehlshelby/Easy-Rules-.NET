@@ -23,10 +23,8 @@ namespace Tests.Core
         [Fact]
         public void TestCompareTo()
         {
-            var compareByPriority = new OrderRulesByPriority();
-
-            Assert.Equal(0, compareByPriority.Compare(rule1, rule2));
-            Assert.Equal(0, compareByPriority.Compare(rule2, rule1));
+            Assert.Equal(-1, OrderRulesByPriority.Instance.Compare(rule1, rule2));
+            Assert.Equal(1, OrderRulesByPriority.Instance.Compare(rule2, rule1));
         }
 
         [Fact]
@@ -34,11 +32,10 @@ namespace Tests.Core
         {
             var rules = new Rules([rule1, rule2, rule3]);
 
-            var comparer = new EquateRulesByName();
             var engine = new DefaultRulesEngine();
 
             var evaluated = engine.Evaluate(rules, Facts);
-            Assert.Equal(evaluated.Select(kv => kv.Key), [rule1, rule3, rule2], comparer);
+            Assert.Equal(evaluated.Select(kv => kv.Key), [rule1, rule3, rule2], EquateRulesByName.Instance);
         }
     }
 }

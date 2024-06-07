@@ -131,7 +131,7 @@ namespace Tests.Annotation
 		public string Name => "weather rule";
 		public string Description => "if it rains then take an umbrella";
 		public int Priority => int.MaxValue;
-		public bool Evaluate(IFacts facts) => facts.IsTrue("rain");
+		public bool Evaluate(IFacts facts) => facts.True("rain");
 		public void Execute(IFacts facts) => Console.WriteLine("It rains, take an umbrella!");
 	}
 

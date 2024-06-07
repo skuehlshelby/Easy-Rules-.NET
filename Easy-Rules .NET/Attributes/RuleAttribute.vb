@@ -4,7 +4,10 @@
     Public Class RuleAttribute
         Inherits Attribute
 
-        Public Sub New(name As String, Optional description As String = "No Description Provided", Optional priority As Integer = Integer.MaxValue)
+        Public Const DEFAULT_DESCRIPTION As String = "No Description Provided"
+        Public Const DEFAULT_PRIORITY As Integer = Integer.MaxValue - 1
+
+        Public Sub New(name As String, Optional description As String = DEFAULT_DESCRIPTION, Optional priority As Integer = DEFAULT_PRIORITY)
             Me.Name = name
             Me.Description = description
             Me.Priority = priority

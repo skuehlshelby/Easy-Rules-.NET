@@ -11,46 +11,167 @@ Namespace Attributes
 
 			Dim attribute = rule.GetType().GetCustomAttribute(Of RuleAttribute)()
 
-			Return New Rule(attribute.Name, attribute.Description, attribute.Priority, Function(f) ForwardFactsToCondition(rule, f), Sub(f) ForwardFactsToActionMethods(rule, f))
+			Return New ProxyRule(rule, attribute.Name, attribute.Description, attribute.Priority)
 		End Function
 
-		Private Shared Function ForwardFactsToCondition(rule As Object, facts As IFacts) As Boolean
-			Dim condition = rule.GetType().GetMethods().Single(Function(m) m.GetCustomAttribute(Of ConditionAttribute) IsNot Nothing)
-			Dim parameters = condition.GetParameters()
-			Dim values As New List(Of Object)
+		Private NotInheritable Class ProxyRule
+			Implements IRule
 
-			For Each parameter In parameters
-				Dim factName = parameter.GetCustomAttribute(Of FactAttribute).FactName
-				Dim fact = facts.GetFactByName(factName)
-				Dim valueProperty = fact.GetType().GetProperty(NameOf(IFact(Of Object).Value))
-				values.Add(valueProperty.GetValue(fact))
-			Next
+			Private Interface IInvocationStrategy
+				Function Invoke(facts As IFacts) As Object
+			End Interface
 
-			Return CType(condition.Invoke(rule, values.ToArray()), Boolean)
-		End Function
+			Private NotInheritable Class ForwardFacts
+				Implements IInvocationStrategy
 
-		Private Shared Sub ForwardFactsToActionMethods(rule As Object, facts As IFacts)
-			Dim actions = rule.
-				GetType().
-				GetMethods().
-				Where(Function(m) m.IsDefined(GetType(ActionAttribute))).
-				OrderBy(Function(m) m.GetCustomAttribute(Of ActionAttribute).Order)
+				Private ReadOnly rule As Object
+				Private ReadOnly method As MethodBase
 
-			Dim values As List(Of Object)
+				Public Sub New(rule As Object, method As MethodBase)
+					If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
+					If method Is Nothing Then Throw New ArgumentNullException(NameOf(method))
 
-			For Each action In actions
-				values = New List(Of Object)
+					Me.rule = rule
+					Me.method = method
+				End Sub
 
-				For Each parameter In action.GetParameters()
-					Dim factName = parameter.GetCustomAttribute(Of FactAttribute).FactName
-					Dim fact = facts.GetFactByName(factName)
-					Dim valueProperty = fact.GetType().GetProperty(NameOf(IFact(Of Object).Value))
-					values.Add(valueProperty.GetValue(fact))
+				Public Function Invoke(facts As IFacts) As Object Implements IInvocationStrategy.Invoke
+					Return method.Invoke(rule, New Object() {facts})
+				End Function
+			End Class
+
+			Private NotInheritable Class ForwardNamedFactsOnly
+				Implements IInvocationStrategy
+
+				Private ReadOnly rule As Object
+				Private ReadOnly method As MethodBase
+				Private ReadOnly factNames As String()
+
+				Public Sub New(rule As Object, method As MethodBase, factNames() As String)
+					If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
+					If method Is Nothing Then Throw New ArgumentNullException(NameOf(method))
+					If factNames Is Nothing Then Throw New ArgumentNullException(NameOf(factNames))
+
+					Me.rule = rule
+					Me.method = method
+					Me.factNames = factNames
+				End Sub
+
+				Public Function Invoke(facts As IFacts) As Object Implements IInvocationStrategy.Invoke
+					If Not factNames.All(Function(f) facts.HasFact(f)) Then Return False
+
+					Dim args = factNames.
+						Select(Function(p) facts.GetFactByName(p).Value).
+						ToArray()
+
+					Return method.Invoke(rule, args)
+				End Function
+			End Class
+
+			Private NotInheritable Class ForwardNamedFactsAndIFacts
+				Implements IInvocationStrategy
+
+				Private ReadOnly rule As Object
+				Private ReadOnly method As MethodBase
+				Private ReadOnly factNamesFirstHalf As String()
+				Private ReadOnly factNamesSecondHalf As String()
+
+				Public Sub New(rule As Object, method As MethodBase, factNamesFirstHalf() As String, factNamesSecondHalf() As String)
+					If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
+					If method Is Nothing Then Throw New ArgumentNullException(NameOf(method))
+					If factNamesFirstHalf Is Nothing Then Throw New ArgumentNullException(NameOf(factNamesFirstHalf))
+					If factNamesSecondHalf Is Nothing Then Throw New ArgumentNullException(NameOf(factNamesSecondHalf))
+
+					Me.rule = rule
+					Me.method = method
+					Me.factNamesFirstHalf = factNamesFirstHalf
+					Me.factNamesSecondHalf = factNamesSecondHalf
+				End Sub
+
+				Public Function Invoke(facts As IFacts) As Object Implements IInvocationStrategy.Invoke
+					If Not factNamesFirstHalf.All(Function(f) facts.HasFact(f)) AndAlso
+						Not factNamesSecondHalf.All(Function(f) facts.HasFact(f)) Then Return False
+
+					Dim argsFirstHalf = factNamesFirstHalf.
+						Select(Function(p) facts.GetFactByName(p).Value).
+						ToArray()
+
+					Dim argsSecondHalf = factNamesSecondHalf.
+						Select(Function(p) facts.GetFactByName(p).Value).
+						ToArray()
+
+					Dim args = argsFirstHalf.
+						Concat(New Object() {facts}).
+						Concat(argsSecondHalf).
+						ToArray()
+
+					Return method.Invoke(rule, args)
+				End Function
+			End Class
+
+			Private ReadOnly conditionInvokationStrategy As IInvocationStrategy
+			Private ReadOnly actionInvokationStrategies As IInvocationStrategy()
+
+			Public Sub New(rule As Object, name As String, description As String, priority As Integer)
+				If name Is Nothing Then Throw New ArgumentNullException(NameOf(name))
+				If description Is Nothing Then Throw New ArgumentNullException(NameOf(description))
+
+				Dim ruleType = rule.GetType()
+
+				Dim conditionMethod = ruleType.
+					GetMethods().
+					Single(Function(m) m.IsDefined(GetType(ConditionAttribute)))
+
+				conditionInvokationStrategy = CreateInvocationStrategy(rule, conditionMethod)
+
+				actionInvokationStrategies = ruleType.
+					GetMethods().
+					Where(Function(m) m.IsDefined(GetType(ActionAttribute))).
+					OrderBy(Function(m) m.GetCustomAttribute(Of ActionAttribute).Order).
+					Cast(Of MethodBase)().
+					Select(Function(m) CreateInvocationStrategy(rule, m)).
+					ToArray()
+
+				Me.Name = name
+				Me.Description = description
+				Me.Priority = priority
+			End Sub
+
+			Private Shared Function CreateInvocationStrategy(rule As Object, method As MethodBase) As IInvocationStrategy
+				Dim parameters = method.GetParameters()
+				Dim factAttributes = parameters.Select(Function(p) p.GetCustomAttribute(Of FactAttribute)).ToArray()
+
+				If factAttributes.All(Function(f) f IsNot Nothing) Then
+					Dim factNames = factAttributes.Select(Function(a) a.FactName).ToArray()
+					Return New ForwardNamedFactsOnly(rule, method, factNames)
+				ElseIf parameters.Length = 1 AndAlso parameters.Single().ParameterType = GetType(IFacts) Then
+					Return New ForwardFacts(rule, method)
+				Else
+					Dim parametersFirstHalf = parameters.TakeWhile(Function(p) p.ParameterType <> GetType(IFacts))
+					Dim parametersSecondHalf = parameters.
+						SkipWhile(Function(p) p.ParameterType <> GetType(IFacts)).
+						SkipWhile(Function(p) p.ParameterType = GetType(IFacts))
+					Dim factNamesFirstHalf = parametersFirstHalf.Select(Function(p) p.GetCustomAttribute(Of FactAttribute).FactName).ToArray()
+					Dim factNamesSecondHalf = parametersSecondHalf.Select(Function(p) p.GetCustomAttribute(Of FactAttribute).FactName).ToArray()
+
+					Return New ForwardNamedFactsAndIFacts(rule, method, factNamesFirstHalf, factNamesSecondHalf)
+				End If
+			End Function
+
+			Public ReadOnly Property Name As String Implements IRule.Name
+			Public ReadOnly Property Description As String Implements IRule.Description
+			Public ReadOnly Property Priority As Integer Implements IRule.Priority
+
+			Public Function Evaluate(facts As IFacts) As Boolean Implements IRule.Evaluate
+				Return DirectCast(conditionInvokationStrategy.Invoke(facts), Boolean)
+			End Function
+
+			Public Sub Execute(facts As IFacts) Implements IRule.Execute
+				For Each action In actionInvokationStrategies
+					action.Invoke(facts)
 				Next
-
-				action.Invoke(rule, values.ToArray())
-			Next
-		End Sub
+			End Sub
+		End Class
 	End Class
 
 End Namespace

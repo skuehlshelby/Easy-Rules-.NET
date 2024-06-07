@@ -1,6 +1,11 @@
 ﻿Imports Microsoft.Extensions.Logging
 Imports Microsoft.Extensions.Logging.Abstractions
 
+Public NotInheritable Class Constants
+	Public Const DEFAULT_RULE_DESCRIPTION As String = "No Description Provided"
+	Public Const DEFAULT_RULE_PRIORITY As Integer = Integer.MaxValue - 1
+End Class
+
 Public NotInheritable Class Rule
 	Implements IRule
 
@@ -8,15 +13,15 @@ Public NotInheritable Class Rule
 	Private ReadOnly _action As Action(Of IFacts)
 
 	Public Sub New(name As String, predicate As Predicate(Of IFacts), action As Action(Of IFacts))
-		Me.New(name, "No Description Provided", Integer.MaxValue, predicate, action)
+		Me.New(name, Constants.DEFAULT_RULE_DESCRIPTION, Constants.DEFAULT_RULE_PRIORITY, predicate, action)
 	End Sub
 
 	Public Sub New(name As String, priority As Integer, predicate As Predicate(Of IFacts), action As Action(Of IFacts))
-		Me.New(name, "No Description Provided", priority, predicate, action)
+		Me.New(name, Constants.DEFAULT_RULE_DESCRIPTION, priority, predicate, action)
 	End Sub
 
 	Public Sub New(name As String, description As String, condition As Predicate(Of IFacts), action As Action(Of IFacts))
-		Me.New(name, description, Integer.MaxValue, condition, action)
+		Me.New(name, description, Constants.DEFAULT_RULE_PRIORITY, condition, action)
 	End Sub
 
 	Public Sub New(name As String, description As String, priority As Integer, predicate As Predicate(Of IFacts), action As Action(Of IFacts))
@@ -43,13 +48,63 @@ Public NotInheritable Class Rule
 	End Sub
 
 	Public Function Evaluate(facts As IFacts) As Boolean Implements IRule.Evaluate
-
 		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+
 		Return _predicate.Invoke(facts)
 	End Function
 
 	Public Overrides Function ToString() As String
 		Return $"{Name}: {Description}"
+	End Function
+End Class
+
+Public MustInherit Class Rule(Of TFact)
+	Implements IRule
+
+	Private ReadOnly _evaluateArgumentName As String
+	Private ReadOnly _executeArgumentName As String
+
+	Public Sub New()
+		Dim evaluateMethod = [GetType]().GetMethod(NameOf(Evaluate), New Type() {GetType(TFact)})
+		_evaluateArgumentName = evaluateMethod.GetParameters().Single().Name
+		Dim executeMethod = [GetType]().GetMethod(NameOf(Execute), New Type() {GetType(TFact)})
+		_executeArgumentName = executeMethod.GetParameters().Single().Name
+	End Sub
+
+	Public MustOverride ReadOnly Property Name As String Implements IRule.Name
+	Public Overridable ReadOnly Property Description As String Implements IRule.Description
+	Public Overridable ReadOnly Property Priority As Integer Implements IRule.Priority
+
+	Private Overloads Sub Execute(facts As IFacts) Implements IRule.Execute
+		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+
+		Execute(facts.Get(Of TFact)(_executeArgumentName))
+	End Sub
+
+	Private Overloads Function Evaluate(facts As IFacts) As Boolean Implements IRule.Evaluate
+		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+
+		Dim fact As IFact = Nothing
+
+		If facts.TryGetFactByName(_evaluateArgumentName, fact) AndAlso TypeOf fact Is IFact(Of TFact) Then
+			Evaluate(DirectCast(fact, IFact(Of TFact)).Value)
+		End If
+
+		Return False
+	End Function
+
+	Public MustOverride Overloads Sub Execute(fact As TFact)
+	Public MustOverride Overloads Function Evaluate(fact As TFact) As Boolean
+End Class
+
+Public NotInheritable Class Fact
+	Private Sub New()
+	End Sub
+
+	Public Shared Function Create(Of T)(name As String, value As T) As IFact(Of T)
+		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
+
+		Return New Fact(Of T)(name, value)
 	End Function
 End Class
 
@@ -60,14 +115,32 @@ Public NotInheritable Class Fact(Of T)
 		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
 
 		Me.Value = value
+		IFact_Value = value
 		Me.Name = name
 	End Sub
 
 	Public ReadOnly Property Name As String Implements IFact.Name
 	Public ReadOnly Property Value As T Implements IFact(Of T).Value
+	Private ReadOnly Property IFact_Value As Object Implements IFact.Value
 
 	Public Overrides Function ToString() As String
 		Return $"{Name}: {Value}"
+	End Function
+End Class
+
+Public NotInheritable Class FactKey(Of T)
+	Implements IFactKey(Of T)
+
+	Public Sub New(name As String)
+		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
+
+		Me.Name = name
+	End Sub
+
+	Public ReadOnly Property Name As String Implements IFactKey(Of T).Name
+
+	Public Overrides Function ToString() As String
+		Return $"({Name}, {GetType(T).Name})"
 	End Function
 End Class
 
@@ -87,6 +160,8 @@ Public NotInheritable Class EquateRulesByName
 	Public Overrides Function GetHashCode(rule As IRule) As Integer
 		Return rule.Name.GetHashCode()
 	End Function
+
+	Public Shared ReadOnly Instance As IEqualityComparer(Of IRule) = New EquateRulesByName()
 End Class
 
 Public NotInheritable Class EquateFactsByName
@@ -105,6 +180,8 @@ Public NotInheritable Class EquateFactsByName
 	Public Overrides Function GetHashCode(fact As IFact) As Integer
 		Return fact.Name.GetHashCode()
 	End Function
+
+	Public Shared ReadOnly Instance As IEqualityComparer(Of IFact) = New EquateFactsByName()
 End Class
 
 Public NotInheritable Class OrderRulesByPriority
@@ -113,6 +190,8 @@ Public NotInheritable Class OrderRulesByPriority
 	Public Overrides Function Compare(firstRule As IRule, secondRule As IRule) As Integer
 		Return firstRule.Priority.CompareTo(secondRule.Priority)
 	End Function
+
+	Public Shared ReadOnly Instance As IComparer(Of IRule) = New OrderRulesByPriority()
 End Class
 
 Public NotInheritable Class Rules
@@ -121,11 +200,11 @@ Public NotInheritable Class Rules
 	Private ReadOnly _rules As HashSet(Of IRule)
 
 	Public Sub New()
-		_rules = New HashSet(Of IRule)(New EquateRulesByName())
+		_rules = New HashSet(Of IRule)(EquateRulesByName.Instance)
 	End Sub
 
 	Public Sub New(rules As IEnumerable(Of IRule))
-		_rules = New HashSet(Of IRule)(rules, New EquateRulesByName())
+		_rules = New HashSet(Of IRule)(rules, EquateRulesByName.Instance)
 	End Sub
 
 	Public Sub New(comparer As IEqualityComparer(Of IRule))
@@ -143,11 +222,17 @@ Public NotInheritable Class Rules
 	End Property
 
 	Public Function Add(rule As IRule) As Boolean Implements IRules.Add
+		If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
+
 		Return _rules.Add(rule)
 	End Function
 
 	Public Function Remove(rule As IRule) As Boolean Implements IRules.Remove
 		Return _rules.Remove(rule)
+	End Function
+
+	Public Function Remove(name As String) As Boolean
+		Return 0 < _rules.RemoveWhere(Function(r) r.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
 	End Function
 
 	Public Sub Clear() Implements IRules.Clear
@@ -173,11 +258,11 @@ Public NotInheritable Class Facts
 	Private ReadOnly _facts As HashSet(Of IFact)
 
 	Public Sub New()
-		_facts = New HashSet(Of IFact)(New EquateFactsByName())
+		_facts = New HashSet(Of IFact)(EquateFactsByName.Instance)
 	End Sub
 
 	Public Sub New(facts As IEnumerable(Of IFact))
-		_facts = New HashSet(Of IFact)(facts, New EquateFactsByName())
+		_facts = New HashSet(Of IFact)(facts, EquateFactsByName.Instance)
 	End Sub
 
 	Public Sub New(comparer As IEqualityComparer(Of IFact))
@@ -208,6 +293,12 @@ Public NotInheritable Class Facts
 
 	Public Function Remove(fact As IFact) As Boolean Implements IFacts.Remove
 		Return _facts.Remove(fact)
+	End Function
+
+	Public Function Remove(name As String) As Boolean
+		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
+
+		Return 0 < _facts.RemoveWhere(Function(f) f.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
 	End Function
 
 	Public Sub Clear() Implements IFacts.Clear
@@ -345,7 +436,7 @@ Public Class DefaultRulesEngine
 		_logger.LogInformation("{Facts}", facts.ToString())
 
 
-		For Each rule As Rule In rules
+		For Each rule As IRule In rules
 			If rule.Priority > Parameters.PriorityThreshold Then
 				_logger.LogInformation("Rule priority threshold ({PriorityThreshold}) exceeded at rule '{RuleName}' with priority={Priority}. The next rules will be skipped.", Parameters.PriorityThreshold, rule.Name, rule.Priority)
 				Exit For

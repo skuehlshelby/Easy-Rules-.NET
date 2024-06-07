@@ -1,111 +1,184 @@
 ﻿using EasyRules;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Tests.Annotation;
 using Xunit;
+using RuleProxy = EasyRules.Attributes.RuleProxy;
 
 namespace Tests.Api
 {
 
 	public class RulesTest
 	{
+		private static bool ReturnTrue(IFacts _) => true;
+		private static void DoNothing(IFacts _) { }
+
 		[Fact]
-		public void FactsMustHaveUniqueName()
+		public void Register()
 		{
-			var facts = new Facts()
+			var rules = new Rules() { RuleProxy.AsRule(new DummyRule()) };
+
+			Assert.Single(rules);
+		}
+
+		[Fact]
+		public void RulesMustHaveUniqueName()
+		{
+			var rules = new Rules()
 			{
-				{ "foo", 1 },
-				{ "foo", 2 }
+				new Rule("rule", ReturnTrue, DoNothing),
+				new Rule("rule", ReturnTrue, DoNothing)
 			};
 
-			Assert.Single(facts);
-			Assert.True(facts.IsTrue<int>("foo", f => f == 1));
+			Assert.Single(rules);
 		}
 
 		[Fact]
-	public void TestAdd()
+		public void Unregister()
 		{
-			var fact1 = new Fact<int>("foo", 1);
-			var fact2 = new Fact<int>("bar", 2);
+			var rule = RuleProxy.AsRule(new DummyRule());
 
-			var facts = new Facts
+			var rules = new Rules()
 			{
-				fact1,
-				fact2
+				rule
+			};
+			
+			rules.Remove(rule);
+
+			Assert.Empty(rules);
+		}
+
+		[Fact]
+		public void UnregisterByName()
+		{
+			var rules = new Rules()
+			{
+				new Rule("rule1", ReturnTrue, DoNothing),
+				new Rule("rule2", ReturnTrue, DoNothing)
 			};
 
-			Assert.Contains(fact1, facts);
-			Assert.Contains(fact2, facts);
+			rules.Remove("rule2");
+
+			Assert.Single(rules);
 		}
 
 		[Fact]
-		public void TestPut()
+		public void UnregisterByNameNonExistingRule()
 		{
-			var facts = new Facts
+			var rules = new Rules()
 			{
-				{ "foo", 1 },
-				{ "bar", 2 }
+				new Rule("rule1", ReturnTrue, DoNothing)
 			};
 
-			Assert.Contains(new Fact<int>("foo", 1), facts);
-			Assert.Contains(new Fact<int>("bar", 2), facts);
+			rules.Remove("rule2");
+
+			Assert.Single(rules);
 		}
 
 		[Fact]
-	public void TestRemove()
+		public void IsEmpty()
 		{
-			Fact<Integer> foo = new Fact<>("foo", 1);
-			facts.add(foo);
-			facts.remove(foo);
-
-			assertThat(facts).isEmpty();
+			Assert.Empty(new Rules());
 		}
 
 		[Fact]
-	public void TestRemoveByName()
+		public void Clear()
 		{
-			Fact<Integer> foo = new Fact<>("foo", 1);
-			facts.add(foo);
-			facts.remove("foo");
+			var rules = new Rules()
+			{
+				new Rule("rule1", ReturnTrue, DoNothing),
+				new Rule("rule2", ReturnTrue, DoNothing)
+			};
 
-			assertThat(facts).isEmpty();
+			rules.Clear();
+
+			Assert.Empty(rules);
 		}
 
 		[Fact]
-	public void TestGet()
+		public void Sort()
 		{
-			Fact<Integer> fact = new Fact<>("foo", 1);
-			facts.add(fact);
-			Integer value = facts.get("foo");
-			assertThat(value).isEqualTo(1);
+			var r1 = new Rule("rule1", 1, ReturnTrue, DoNothing);
+			var r2 = new Rule("rule2", int.MaxValue, ReturnTrue, DoNothing);
+			var r3 = new DummyRule();
+
+			var rules = new Rules()
+			{
+				r1,
+				r2,
+				RuleProxy.AsRule(r3)
+			};
+
+			Assert.Equal(r1, rules.First());
+			Assert.Equal(r2, rules.Last());
 		}
 
 		[Fact]
-	public void TestGetFact()
+		public void Size()
 		{
-			Fact<Integer> fact = new Fact<>("foo", 1);
-			facts.add(fact);
-			Fact <?> retrievedFact = facts.getFact("foo");
-			assertThat(retrievedFact).isEqualTo(fact);
+			var rules = new Rules();
+
+			Assert.Empty(rules);
+
+			rules.Add(RuleProxy.AsRule(new DummyRule()));
+
+			Assert.Single(rules);
+
+			rules.Remove(RuleProxy.AsRule(new DummyRule()));
+
+			Assert.Empty(rules);
 		}
 
 		[Fact]
-	public void TestAsMap()
+		public void Register_Multiple()
 		{
-			Fact<Integer> fact1 = new Fact<>("foo", 1);
-			Fact<Integer> fact2 = new Fact<>("bar", 2);
-			facts.add(fact1);
-			facts.add(fact2);
-			Map<String, Object> map = facts.asMap();
-			assertThat(map).containsKeys("foo", "bar");
-			assertThat(map).containsValues(1, 2);
+			var rules = new Rules()
+			{
+				new Rule("rule1", ReturnTrue, DoNothing),
+				new Rule("rule2", ReturnTrue, DoNothing)
+			};
+
+			Assert.Equal(2, rules.Count);
 		}
 
 		[Fact]
-	public void TestClear()
+		public void Unregister_NoneLeft()
 		{
-			Facts facts = new Facts();
-			facts.add(new Fact<>("foo", 1));
-			facts.clear();
-			assertThat(facts).isEmpty();
+			var rules = new Rules()
+			{
+				new Rule("ruleA", ReturnTrue, DoNothing),
+				new Rule("ruleB", ReturnTrue, DoNothing)
+			};
+			
+			Assert.Equal(2, rules.Count);
+
+			rules.Remove(new Rule("ruleA", ReturnTrue, DoNothing));
+			rules.Remove(new Rule("ruleB", ReturnTrue, DoNothing));
+			
+			Assert.Empty(rules);
+		}
+
+		[Fact]
+		public void Unregister_OneLeft()
+		{
+			var rules = new Rules()
+			{
+				new Rule("ruleA", ReturnTrue, DoNothing),
+				new Rule("ruleB", ReturnTrue, DoNothing)
+			};
+
+			Assert.Equal(2, rules.Count);
+
+			rules.Remove(new Rule("ruleB", ReturnTrue, DoNothing));
+
+			Assert.Single(rules);
+		}
+
+		[Fact]
+		public void WhenRegisterNullRule_ThenShouldThrowNullPointerException()
+		{
+			Assert.Throws<ArgumentNullException>(() => new Rules() { null });
 		}
 	}
 }

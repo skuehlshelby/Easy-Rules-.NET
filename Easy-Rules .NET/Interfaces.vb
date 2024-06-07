@@ -17,11 +17,16 @@ End Interface
 
 Public Interface IFact
     ReadOnly Property Name As String
+    ReadOnly Property Value As Object
 End Interface
 
 Public Interface IFact(Of Out T)
     Inherits IFact
-    ReadOnly Property Value As T
+    Shadows ReadOnly Property Value As T
+End Interface
+
+Public Interface IFactKey(Of T)
+    ReadOnly Property Name As String
 End Interface
 
 Public Interface IFacts

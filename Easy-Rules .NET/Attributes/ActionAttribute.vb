@@ -3,7 +3,6 @@
     <AttributeUsage(AttributeTargets.Method, AllowMultiple:=False, Inherited:=True)>
     Public Class ActionAttribute
         Inherits Attribute
-
         Public Sub New(Optional order As Integer = 0)
             Me.Order = order
         End Sub
