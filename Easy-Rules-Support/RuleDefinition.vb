@@ -1,4 +1,6 @@
-﻿Public NotInheritable Class RuleDefinition
+﻿
+
+Public NotInheritable Class RuleDefinition
 	Public Property Name As String = String.Empty
 	Public Property Description As String = Constants.DEFAULT_RULE_DESCRIPTION
 	Public Property Priority As Integer = Constants.DEFAULT_RULE_PRIORITY
