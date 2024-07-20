@@ -1,1 +1,1 @@
-![GitHub CI](https://github.com/dwyl/auth_plug/actions/workflows/ci.yml/badge.svg)
+![GitHub CI](https://github.com/skuehlshelby/Easy-Rules-.NET/.github/workflows/dotnet.yml/badge.svg)
