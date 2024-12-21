@@ -3,7 +3,11 @@
 Public MustInherit Class AbstractRuleFactory
 	Public Shared ReadOnly Property AllowedCompositeRuleTypes As String() = New String() {NameOf(UnitRuleGroup), NameOf(ConditionalRuleGroup), NameOf(ActivationRuleGroup)}
 
-	Private ReadOnly logger As ILogger(Of AbstractRuleFactory)
+	Private ReadOnly logger As ILogger
+
+	Public Sub New(logger As ILogger)
+		Me.logger = Guard.NotNull(logger, NameOf(logger))
+	End Sub
 
 	Protected Function CreateRule(ruleDefinition As RuleDefinition) As IRule
 		If Guard.NotNull(ruleDefinition, NameOf(ruleDefinition)).IsCompositeRule() Then

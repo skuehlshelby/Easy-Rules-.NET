@@ -78,7 +78,7 @@ Public MustInherit Class Rule(Of TFact)
 		Dim fact As IFact = Nothing
 
 		If facts.TryGetFactByName(_evaluateArgumentName, fact) AndAlso TypeOf fact Is IFact(Of TFact) Then
-			Evaluate(DirectCast(fact, IFact(Of TFact)).Value)
+			Return Evaluate(DirectCast(fact, IFact(Of TFact)).Value)
 		End If
 
 		Return False

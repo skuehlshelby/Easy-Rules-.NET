@@ -56,7 +56,27 @@ namespace Tests.Core
 			Assert.False(anotherDummyRule.IsExecuted);
 		}
 
-		[Fact]
+        [Fact]
+        public void TestCandidateSelectionWithStronglyTypedRule()
+        {
+            // Given
+            var facts = new Facts()
+            {
+                { "fact", "abc test abc" }
+            };
+
+            var stronglyTypedRule = new StronglyTypedRule();
+            var rules = new Rules([stronglyTypedRule]);
+            var rulesEngine = new InferenceRulesEngine();
+
+            // When
+            rulesEngine.Execute(rules, facts);
+
+            // Then
+            Assert.True(stronglyTypedRule.IsExecuted);
+        }
+
+        [Fact]
 		public void TestCandidateOrdering()
 		{
 			// Given
@@ -123,5 +143,24 @@ namespace Tests.Core
 			public bool IsExecuted => isExecuted;
 			public DateTime Timestamp => timestamp;
 		}
-	}
+
+        private sealed class StronglyTypedRule : Rule<string>
+        {
+            private bool isExecuted = false;
+            private DateTime timestamp;
+
+            public bool IsExecuted => isExecuted;
+            public DateTime Timestamp => timestamp;
+
+            public override string Name => "Strongly Typed Rule";
+
+			public override bool Evaluate(string fact) => !IsExecuted && fact.Contains("test");
+
+            public override void Execute(string fact)
+            {
+                isExecuted = true;
+                timestamp = DateTime.Now;
+            }
+        }
+    }
 }
