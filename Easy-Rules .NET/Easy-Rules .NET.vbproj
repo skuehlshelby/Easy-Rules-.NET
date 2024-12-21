@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>EasyRules</RootNamespace>
@@ -8,7 +8,7 @@
     <Title>Easy Rules .NET</Title>
     <Description>The simple, stupid rules engine for .NET</Description>
     <PackageProjectUrl>https://github.com/j-easy/easy-rules</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/skuehlshelby/Easy-Rules-.NET</RepositoryUrl>
+    <RepositoryUrl>https://github.com/skuehlshelby/Easy-Rules-.NET/tree/master/Easy-Rules%20.NET</RepositoryUrl>
     <PackageTags>rules-engine;rule-engine;business-rules</PackageTags>
     <PackageId>EasyRules</PackageId>
     <Authors>skuehlshelby</Authors>
@@ -16,7 +16,7 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright (c) 2024 Scott Kuehl-Shelby And Mahmoud Ben Hassine</Copyright>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

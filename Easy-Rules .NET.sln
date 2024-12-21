@@ -5,7 +5,9 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Easy-Rules .NET", "Easy-Rules .NET\Easy-Rules .NET.vbproj", "{B3DA91A6-FC7A-489B-8B0C-E2C24E929F8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Easy-Rules-Support", "Easy-Rules-Support\Easy-Rules-Support.vbproj", "{7B43647D-D249-45E4-8BEA-A0C7ACC2CB78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FEDEC21-F8B6-4207-BAB7-03F66E650B50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B43647D-D249-45E4-8BEA-A0C7ACC2CB78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B43647D-D249-45E4-8BEA-A0C7ACC2CB78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B43647D-D249-45E4-8BEA-A0C7ACC2CB78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B43647D-D249-45E4-8BEA-A0C7ACC2CB78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

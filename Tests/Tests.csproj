@@ -10,6 +10,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Support\Resources\adult-rule.json" />
+    <None Remove="Support\Resources\composite-rules.json" />
+    <None Remove="Support\Resources\rules.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Support\Resources\adult-rule.json" />
+    <EmbeddedResource Include="Support\Resources\composite-rules.json" />
+    <EmbeddedResource Include="Support\Resources\rules.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
@@ -18,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Easy-Rules .NET\Easy-Rules .NET.vbproj" />
+    <ProjectReference Include="..\Easy-Rules-Support\Easy-Rules-Support.vbproj" />
   </ItemGroup>
 
 </Project>

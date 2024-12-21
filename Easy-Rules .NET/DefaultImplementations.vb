@@ -25,16 +25,11 @@ Public NotInheritable Class Rule
 	End Sub
 
 	Public Sub New(name As String, description As String, priority As Integer, predicate As Predicate(Of IFacts), action As Action(Of IFacts))
-		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
-		If String.IsNullOrWhiteSpace(description) Then Throw New ArgumentException($"'{NameOf(description)}' cannot be null or empty.", NameOf(name))
-		If predicate Is Nothing Then Throw New ArgumentNullException(NameOf(predicate))
-		If action Is Nothing Then Throw New ArgumentNullException(NameOf(action))
-
-		Me.Name = name
-		Me.Description = description
+		Me.Name = Guard.NotNullOrWhiteSpace(name, NameOf(name))
+		Me.Description = Guard.NotNullOrWhiteSpace(description, NameOf(description))
 		Me.Priority = priority
-		_predicate = predicate
-		_action = action
+		_predicate = Guard.NotNull(predicate, NameOf(predicate))
+		_action = Guard.NotNull(action, NameOf(action))
 	End Sub
 
 	Public ReadOnly Property Name As String Implements IRule.Name
@@ -42,15 +37,11 @@ Public NotInheritable Class Rule
 	Public ReadOnly Property Priority As Integer Implements IRule.Priority
 
 	Public Sub Execute(facts As IFacts) Implements IRule.Execute
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
-
-		_action.Invoke(facts)
+		_action.Invoke(Guard.NotNull(facts, NameOf(facts)))
 	End Sub
 
 	Public Function Evaluate(facts As IFacts) As Boolean Implements IRule.Evaluate
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
-
-		Return _predicate.Invoke(facts)
+		Return _predicate.Invoke(Guard.NotNull(facts, NameOf(facts)))
 	End Function
 
 	Public Overrides Function ToString() As String
@@ -76,18 +67,18 @@ Public MustInherit Class Rule(Of TFact)
 	Public Overridable ReadOnly Property Priority As Integer Implements IRule.Priority
 
 	Private Overloads Sub Execute(facts As IFacts) Implements IRule.Execute
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(facts, NameOf(facts))
 
 		Execute(facts.Get(Of TFact)(_executeArgumentName))
 	End Sub
 
 	Private Overloads Function Evaluate(facts As IFacts) As Boolean Implements IRule.Evaluate
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(facts, NameOf(facts))
 
 		Dim fact As IFact = Nothing
 
 		If facts.TryGetFactByName(_evaluateArgumentName, fact) AndAlso TypeOf fact Is IFact(Of TFact) Then
-			Evaluate(DirectCast(fact, IFact(Of TFact)).Value)
+			Return Evaluate(DirectCast(fact, IFact(Of TFact)).Value)
 		End If
 
 		Return False
@@ -102,9 +93,7 @@ Public NotInheritable Class Fact
 	End Sub
 
 	Public Shared Function Create(Of T)(name As String, value As T) As IFact(Of T)
-		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
-
-		Return New Fact(Of T)(name, value)
+		Return New Fact(Of T)(Guard.NotNullOrWhiteSpace(name, NameOf(name)), value)
 	End Function
 End Class
 
@@ -112,11 +101,9 @@ Public NotInheritable Class Fact(Of T)
 	Implements IFact(Of T)
 
 	Public Sub New(name As String, value As T)
-		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
-
 		Me.Value = value
 		IFact_Value = value
-		Me.Name = name
+		Me.Name = Guard.NotNullOrWhiteSpace(name, NameOf(name))
 	End Sub
 
 	Public ReadOnly Property Name As String Implements IFact.Name
@@ -132,9 +119,7 @@ Public NotInheritable Class FactKey(Of T)
 	Implements IFactKey(Of T)
 
 	Public Sub New(name As String)
-		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
-
-		Me.Name = name
+		Me.Name = Guard.NotNullOrWhiteSpace(name, NameOf(name))
 	End Sub
 
 	Public ReadOnly Property Name As String Implements IFactKey(Of T).Name
@@ -222,9 +207,7 @@ Public NotInheritable Class Rules
 	End Property
 
 	Public Function Add(rule As IRule) As Boolean Implements IRules.Add
-		If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
-
-		Return _rules.Add(rule)
+		Return _rules.Add(Guard.NotNull(rule, NameOf(rule)))
 	End Function
 
 	Public Function Remove(rule As IRule) As Boolean Implements IRules.Remove
@@ -280,13 +263,11 @@ Public NotInheritable Class Facts
 	End Property
 
 	Public Function Add(fact As IFact) As Boolean Implements IFacts.Add
-		If fact Is Nothing Then Throw New ArgumentNullException(NameOf(fact))
-
-		Return _facts.Add(fact)
+		Return _facts.Add(Guard.NotNull(fact, NameOf(fact)))
 	End Function
 
 	Public Function Add(Of T)(name As String, value As T) As Boolean
-		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
+		Guard.NotNullOrWhiteSpace(name, NameOf(name))
 
 		Return _facts.Add(New Fact(Of T)(name, value))
 	End Function
@@ -296,7 +277,7 @@ Public NotInheritable Class Facts
 	End Function
 
 	Public Function Remove(name As String) As Boolean
-		If String.IsNullOrWhiteSpace(name) Then Throw New ArgumentException($"'{NameOf(name)}' cannot be null or empty.", NameOf(name))
+		Guard.NotNullOrWhiteSpace(name, NameOf(name))
 
 		Return 0 < _facts.RemoveWhere(Function(f) f.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
 	End Function
@@ -370,17 +351,15 @@ Public Class DefaultRulesEngine
 	End Sub
 
 	Public Sub New(parameters As IRulesEngineParameters)
-		If parameters Is Nothing Then Throw New ArgumentNullException(NameOf(parameters))
-
-		Me.Parameters = parameters
+		Me.Parameters = Guard.NotNull(parameters, NameOf(parameters))
 		_logger = parameters.LoggerFactory.CreateLogger(Of DefaultRulesEngine)()
 	End Sub
 
 	Public ReadOnly Property Parameters As IRulesEngineParameters Implements IRulesEngine.Parameters
 
 	Public Function Evaluate(rules As IRules, facts As IFacts) As IEnumerable(Of KeyValuePair(Of IRule, Boolean)) Implements IRulesEngine.Evaluate
-		If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(rules, NameOf(rules))
+		Guard.NotNull(facts, NameOf(facts))
 
 		Try
 			RaiseEvent BeforeRulesEvaluation(Me, New RulesEngineEventArgs(rules, facts))
@@ -392,8 +371,8 @@ Public Class DefaultRulesEngine
 	End Function
 
 	Private Iterator Function DoCheck(rules As IRules, facts As IFacts) As IEnumerable(Of KeyValuePair(Of IRule, Boolean))
-		If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(rules, NameOf(rules))
+		Guard.NotNull(facts, NameOf(facts))
 
 		_logger.LogInformation("Checking rules")
 
@@ -405,8 +384,8 @@ Public Class DefaultRulesEngine
 	End Function
 
 	Private Function ShouldBeEvaluated(rule As IRule, facts As IFacts) As Boolean
-		If rule Is Nothing Then Throw New ArgumentNullException(NameOf(rule))
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(rule, NameOf(rule))
+		Guard.NotNull(facts, NameOf(facts))
 
 		Dim e As New RuleEventArgs(rule, facts)
 
@@ -416,8 +395,8 @@ Public Class DefaultRulesEngine
 	End Function
 
 	Public Sub Execute(rules As IRules, facts As IFacts) Implements IRulesEngine.Execute
-		If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(rules, NameOf(rules))
+		Guard.NotNull(facts, NameOf(facts))
 
 		RaiseEvent BeforeRulesEvaluation(Me, New RulesEngineEventArgs(rules, facts))
 
@@ -541,8 +520,8 @@ Public NotInheritable Class InferenceRulesEngine
 	End Property
 
 	Public Sub Execute(rules As IRules, facts As IFacts) Implements IRulesEngine.Execute
-		If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(rules, NameOf(rules))
+		Guard.NotNull(facts, NameOf(facts))
 
 		Dim selectedRules As IEnumerable(Of IRule)
 
@@ -563,8 +542,8 @@ Public NotInheritable Class InferenceRulesEngine
 	End Function
 
 	Public Function Evaluate(rules As IRules, facts As IFacts) As IEnumerable(Of KeyValuePair(Of IRule, Boolean)) Implements IRulesEngine.Evaluate
-		If rules Is Nothing Then Throw New ArgumentNullException(NameOf(rules))
-		If facts Is Nothing Then Throw New ArgumentNullException(NameOf(facts))
+		Guard.NotNull(rules, NameOf(rules))
+		Guard.NotNull(facts, NameOf(facts))
 
 		Return _rulesEngine.Evaluate(rules, facts)
 	End Function
