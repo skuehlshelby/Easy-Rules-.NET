@@ -100,6 +100,21 @@ namespace Tests.Core
 			Assert.True(dummyRule.Timestamp <= anotherDummyRule.Timestamp);
 		}
 
+        [Fact]
+        public void TestInfiniteLoopDetection()
+		{
+			var facts = new Facts();
+
+            var rules = new Rules()
+			{
+				new Rule("Always matches", _ => true, _ => { })
+			};
+
+            var rulesEngine = new InferenceRulesEngine(maxIterations: 1000);
+
+			Assert.Throws<InfiniteLoopException>(() => rulesEngine.Execute(rules, facts));
+		}
+
 		private sealed class DummyRule : IRule
 		{
 			private bool isExecuted = false;

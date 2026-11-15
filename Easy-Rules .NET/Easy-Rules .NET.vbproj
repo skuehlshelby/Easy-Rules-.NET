@@ -15,8 +15,8 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <AnalysisLevel>latest</AnalysisLevel>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Copyright (c) 2024 Scott Kuehl-Shelby And Mahmoud Ben Hassine</Copyright>
-    <Version>1.0.3</Version>
+    <Copyright>Copyright (c) 2026 Scott Kuehl-Shelby And Mahmoud Ben Hassine</Copyright>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

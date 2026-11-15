@@ -479,6 +479,10 @@ Public Class DefaultRulesEngine
 	End Sub
 End Class
 
+Public Module InferenceRulesEngineMaxRecursionDepth
+	Public Const INFINITE As Integer = -1
+End Module
+
 Public NotInheritable Class InferenceRulesEngine
 	Implements IRulesEngine
 
@@ -493,12 +497,13 @@ Public NotInheritable Class InferenceRulesEngine
 
 	Private ReadOnly _rulesEngine As IRulesEngine
 	Private ReadOnly _logger As ILogger
+	Private ReadOnly _maxIterations As Integer
 
-	Public Sub New()
-		Me.New(New RulesEngineParameters())
+	Public Sub New(Optional maxIterations As Integer = INFINITE)
+		Me.New(New RulesEngineParameters(), maxIterations)
 	End Sub
 
-	Public Sub New(parameters As IRulesEngineParameters)
+	Public Sub New(parameters As IRulesEngineParameters, Optional maxIterations As Integer = INFINITE)
 		_rulesEngine = New DefaultRulesEngine(parameters)
 
 		AddHandler _rulesEngine.BeforeRuleEvaluation, Sub(sender As Object, e As RuleEventArgs) RaiseEvent BeforeRuleEvaluation(Me, e)
@@ -511,6 +516,12 @@ Public NotInheritable Class InferenceRulesEngine
 		AddHandler _rulesEngine.OnRuleExecutionError, Sub(sender As Object, e As RuleFailureEventArgs) RaiseEvent OnRuleExecutionError(Me, e)
 
 		_logger = parameters.LoggerFactory.CreateLogger(Of InferenceRulesEngine)()
+
+		If maxIterations < 1 AndAlso maxIterations <> INFINITE Then
+			Throw New ArgumentOutOfRangeException(NameOf(maxIterations), $"'{NameOf(maxIterations)}' must be at least 1.")
+		End If
+
+		_maxIterations = maxIterations
 	End Sub
 
 	Public ReadOnly Property Parameters As IRulesEngineParameters Implements IRulesEngine.Parameters
@@ -524,6 +535,7 @@ Public NotInheritable Class InferenceRulesEngine
 		Guard.NotNull(facts, NameOf(facts))
 
 		Dim selectedRules As IEnumerable(Of IRule)
+		Dim iterations As Integer = 0
 
 		Do
 			_logger.LogDebug("Selecting candidate rules based on the following {facts}", facts)
@@ -534,8 +546,18 @@ Public NotInheritable Class InferenceRulesEngine
 			Else
 				_logger.LogDebug("No candidate rules found for {facts}", facts)
 			End If
-		Loop Until Not selectedRules.Any()
+
+			iterations += 1
+		Loop Until ShouldStopLooping(selectedRules, iterations)
 	End Sub
+
+	Private Function ShouldStopLooping(selected As IEnumerable(Of IRule), iterations As Integer) As Boolean
+		If _maxIterations <> INFINITE AndAlso _maxIterations < iterations Then
+			Throw New InfiniteLoopException($"Number of iterations exceeded the maximum allowed amount of {_maxIterations}.")
+		End If
+
+		Return Not selected.Any()
+	End Function
 
 	Private Shared Function SelectCandidates(rules As IRules, facts As IFacts) As IEnumerable(Of IRule)
 		Return rules.Where(Function(r) r.Evaluate(facts))
